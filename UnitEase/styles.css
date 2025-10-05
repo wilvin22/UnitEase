@@ -24,7 +24,6 @@
 body{
     background-color: var(--WHITE);
     margin: 0;
-    background: linear-gradient(180deg, #FFF2EF 0%, #FFDBB6 100%);
     background-position: center;
     background-repeat: no-repeat;
     background-size: cover;
@@ -36,35 +35,76 @@ body{
     font-size: 250px;
     color: var(--VIOLET);
     margin: 0;
-    
 }
 #header-container{
-    margin-top: 12%;
+    position: relative;
+    margin-top: 10%;
+    width: 60%;
     text-align: center;
-    position: absolute;
-    margin-left: 10%;
-    background-color: yellow;
+    
 }
 #slogan{
     font-family: REM-Extralight, sans-serif;
-    font-size: 40px;
+    font-size: 45px;
     color: var(--VIOLET);
     margin: 0;
 }
 #slogan-container{
-    background-color: white;
-    margin-left: 15%;
-    margin-top: -10%;
+    list-style-type: none;
+    left: 10%;
     width: 35%;
+    position: relative;
 }
 #description{
     font-family: REM-Extralight, sans-serif;
-    font-size: 20px;
+    font-size: 25px;
     margin-top: 5%;
     color: var(--VIOLET);
     
 }
-#key{
-    margin-top: 6%;
-    background-color: green;
+#navbar{
+    width: 100%;
+    height: 80px;
+    background-color: var(--WHITE);
+    display: flex;
+    align-items: center;
+    padding: 0 20px;
+    box-sizing: border-box;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    flex-wrap: wrap;
+    align-items: center;   
+}
+#get-started-button{
+    padding: 10px 20px;
+    font-size: 16px;
+    font-family: REM-Medium, sans-serif;
+    background-color: var(--PINK);
+    color: var(--WHITE);
+    border: none;
+    border-radius: 20px;
+    cursor: pointer;
+    margin: 10px;
+}
+#about-us-button{
+    padding: 10px 20px;
+    font-size: 16px;
+    font-family: REM-Medium, sans-serif;
+    background-color: var(--MOCHA);
+    color: var(--VIOLET);
+    border: none;
+    border-radius: 20px;
+    cursor: pointer;
+    margin: 10px;
+    
+}
+#contact-us-button{
+    padding: 10px 20px;
+    font-size: 16px;
+    font-family: REM-Medium, sans-serif;
+    background-color: var(--VIOLET);
+    color: var(--WHITE);
+    border: none;
+    border-radius: 20px;
+    cursor: pointer;
+    margin: 10px;
 }

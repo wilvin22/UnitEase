@@ -22,59 +22,87 @@
 }
 body{
     margin: 0;
-    background: linear-gradient(180deg, var(--WHITE), var(--MOCHA));
+    background-color: var(--WHITE);
     background-position: center;
     background-repeat: no-repeat;
     background-size: cover;
     background-attachment: fixed;
+    overflow-y: hidden;
+}
+#navbar{
+    width: 100%;
+    height: 80px;
+    background-color: var(--WHITE);
+    display: flex;
+    align-items: center;
+    padding: 0 20px;
+    box-sizing: border-box;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+#about-us-button{
+    padding: 10px 20px;
+    font-size: 16px;
+    font-family: REM-Medium, sans-serif;
+    background-color: var(--MOCHA);
+    color: var(--VIOLET);
+    border: none;
+    border-radius: 20px;
+    cursor: pointer;
+    margin: 10px;
+    
+}
+#contact-us-button{
+    padding: 10px 20px;
+    font-size: 16px;
+    font-family: REM-Medium, sans-serif;
+    background-color: var(--VIOLET);
+    color: var(--WHITE);
+    border: none;
+    border-radius: 20px;
+    cursor: pointer;
+    margin: 10px;
 }
 #header{
     font-family: REM-Bold, sans-serif;
-    font-size: 100px;
+    font-size: 170px;
     color: var(--VIOLET);
     text-align: center;
 }
 #header-container{
-    margin-top: 10%;
     text-align: center;
     animation: fadeInUp 0.6s ease-out;
-    height: auto;
-    margin-bottom: 10%;
 }
 #slogan{
     font-family: REM-Extralight, sans-serif;
     color: var(--VIOLET);
     text-align: center;
-    font-size: 20px;
-    margin-top: -3%;
+    font-size: 40px;
+    margin-top: -10%;
+}
+
+#full-container{
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    height: 100vh;
+    justify-content: space-evenly;
+    flex-wrap: wrap;
 }
 
 /* LOGIN BOX  LOGIN BOX  LOGIN BOX  LOGIN BOX  LOGIN BOX  LOGIN BOX  LOGIN BOX  LOGIN BOX  LOGIN BOX */
 #login-container{
-    background: linear-gradient(0deg, var(--PINK), var(--MOCHA));
+    background: linear-gradient(135deg, var(--MOCHA), var(--PINK));
     width: 400px;
-    margin: auto;
     padding: 2%;
     border-radius: 5%;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
-    animation: fadeInUp 0.8s ease-in; 
+    animation: fadeInUp 0.8s ease-in;
+    text-align: center;
 }
 
-#login-container input:focus {
-  border: 2px solid #4F5978;
-  box-shadow: 0 0 5px rgba(79,89,120,0.5);
-  transition: 0.5s;
-}
-#login-container input {
-  transition: 0.5s;
-}
 @keyframes fadeInUp {
   0% {opacity: 0; transform: translateY(20px);}
   100% {opacity: 1; transform: translateY(0);}
-}
-#logo{
-    margin-left: 35%;
-    margin-right: 35%;
 }
 #login-container-header{
     text-align: center;
@@ -82,8 +110,8 @@ body{
     color: var(--VIOLET);
     font-weight: bolder;
     margin-bottom: 20%;
+    margin-top: -5%;
 }
-
 #username{
     padding: 10px;
     margin: 10px 0;
@@ -92,11 +120,9 @@ body{
     box-sizing: border-box;
     font-size: 16px;
     outline: none;
-    border: 2px solid #F7A5A5;
-    box-shadow: 0 0 5px rgba(247,165,165,0.5);
+    border: none;
 }
 #password{
-    
     padding: 10px;
     margin: 10px 0;
     border-radius: 5px;
@@ -104,23 +130,34 @@ body{
     box-sizing: border-box;
     font-size: 16px;
     outline: none;
-    border: 2px solid #F7A5A5;
-    box-shadow: 0 0 5px rgba(247,165,165,0.5);
+    border: none;
 }
 #login-button{
     background-color: var(--VIOLET);
     color: white;
-    border: none;
     padding: 10px;
-    border-radius: 5px;
+    cursor: pointer;
+    width: 100%;
+    font-size: 16px;
+    margin-top: 10px;
+    border: none;
+}
+#signup-button{
+    background-color: white;
+    color: var(--VIOLET);
+    border-color: var(--VIOLET);
+    border-width: 1px;
+    padding: 10px;
     cursor: pointer;
     width: 100%;
     font-size: 16px;
     margin-top: 10px;
 }
-#signup, #forgot_password{
+
+#forgot_password{
     color: var(--VIOLET);
     text-decoration: none;
+    font-size: 20px;
 }
 
 /* LOGIN BOX  LOGIN BOX  LOGIN BOX  LOGIN BOX  LOGIN BOX  LOGIN BOX  LOGIN BOX  LOGIN BOX  LOGIN BOX */
@@ -131,8 +168,6 @@ label{
     font-size: 18px;
     font-weight: bold;
 }
-
-
 #key-image{
     position:absolute;
     left: 20%;
@@ -149,5 +184,9 @@ label{
 
 #login-button:hover {
   background-color: #4F5978;
+  transition: 0.3s;
+}
+#signup-button:hover {
+  background-color: #E6C8A1;
   transition: 0.3s;
 }
