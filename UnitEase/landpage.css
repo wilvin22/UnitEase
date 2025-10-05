@@ -1,0 +1,44 @@
+:root {
+    --VIOLET: #5D688A;
+    --PINK: #F7A5A5;
+    --MOCHA: #FFDBB6;
+    --WHITE: #FFF2EF;
+}
+@font-face {
+    font-family: REM-Bold;
+    src: url(fonts/REM-Bold.ttf);
+}
+@font-face {
+    font-family: REM-Extralight;
+    src: url(fonts/REM-Extralight.ttf);
+}
+@font-face {
+    font-family: REM-Regular;
+    src: url(fonts/REM-Regular.ttf);
+}
+@font-face {
+    font-family: REM-Medium;
+    src: url(fonts/REM-Medium.ttf);
+}
+
+body{
+    background-color: var(--WHITE);
+    margin: 0;
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: cover;
+    background-attachment: fixed;
+}
+
+#header{
+    font-family: REM-Bold, sans-serif;
+    font-size: 250px;
+    color: var(--VIOLET);
+    margin: 0;
+}
+#header-container{
+    margin: 0;
+    background-color: var(--MOCHA);
+    text-align: center;
+    
+}
