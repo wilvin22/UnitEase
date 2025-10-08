@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -8,21 +9,6 @@
     <title>Log-In</title>
 </head>
 <body>
-    <div id="navbar">
-        <a href="index.html">
-            <img src="images/UnitEaseLogo.png" alt="Logo" style="width: 75px;">
-        </a>
-        <a href="AboutUs.html">
-            <button id="about-us-button">
-                About Us
-            </button>
-        </a>
-        <a href="ContactUs.html">
-            <button id="contact-us-button">
-                Contact Us
-            </button>
-        </a>
-    </div>
 
     <div id="full-container">
     <div id="header-container">

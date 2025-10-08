@@ -145,7 +145,7 @@ body{
 #signup-button{
     background-color: white;
     color: var(--VIOLET);
-    border-color: var(--VIOLET);
+    border: none;
     border-width: 1px;
     padding: 10px;
     cursor: pointer;
