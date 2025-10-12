@@ -11,16 +11,23 @@
 <body>
     <nav class="navbar">
             <ul>
-                <li class="nav-items"><a href="index.php" id="unitease">UnitEase</a></li>
-                <li class="nav-items"><a href="contacts.php" id="contacts">Contacts</a></li>
-                <li class="nav-items"><a href="aboutus.php" id="aboutus">About Us</a></li>
+                <li class="nav-items">
+                    <a href="index.php" id="unitease"><span style="color: #62929E">U</span>nitEase <img src="images/logo-blue.png" alt="logo blue" style="width: 40px;"></a>
+                </li>
+                <li class="nav-items">
+                    <a href="contacts.php" id="contacts">Contacts</a>
+                </li>
+                <li class="nav-items">
+                    <a href="aboutus.php" id="aboutus">About Us</a>
+                </li>
             </ul>
         </nav>
     <div class=top-container>
         <div class="main-content">
             <div id="slogan">
-                <h1>Your Units, made Easy.</h1>
+                <h1>Your Units, made easy.</h1>
             </div>
+            <img src="images/logo-blue.png" alt="logo blue" id="logo">
             <div id="description">
                 <p>UnitEase is a simple and efficient apartment management website designed to make handling units, tenants, and requests effortless.</p>
             </div>
@@ -29,7 +36,7 @@
                     <button id="login-button">Log In</button>
                 </a>
                 <a href="signup.php">
-                    <button id="signup-button">Sign Up</button>
+                    <button id="signup-button">Get Started</button>
                 </a>
             </div>
         </div>
@@ -38,18 +45,21 @@
             <div class="feature-item" id="feature-1">
                 <div class="feature-text">
                     <h2>Manage your Units</h2>
+                    <img src="images/home-blue.png" alt="home icon" id="home-icon" style="width: 15%;">
                     <p>Keep all your units organized in one place.</p>
                 </div>
             </div>
             <div class="feature-item" id="feature-2">
                 <div class="feature-text">
                     <h2>Handle Tenants</h2>
+                    <img src="images/user-blue.png" alt="user icon" id="user-icon" style="width: 15%;">
                     <p>Easily track and manage tenant information.</p>
                 </div>
             </div>
             <div class="feature-item" id="feature-3">
                 <div class="feature-text">
                     <h2>Manage Requests</h2>
+                    <img src="images/request-blue.png" alt="request icon" id="request-icon" style="width: 15%;">
                     <p>Respond to tenant requests quickly and efficiently.</p>
                 </div>
             </div>
