@@ -20,7 +20,6 @@
     --DARK: #393D3F;
     --LIGHT: #C6C5B9;
 }
-
 *{
     padding: 0;
     margin: 0;
@@ -33,6 +32,7 @@ body{
     background-repeat: no-repeat;
     background-attachment: fixed;
     background-size: cover;
+    overflow: auto;
 }
 .top-container{
     height: 50vh;
@@ -135,7 +135,7 @@ body{
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    border-radius: 10px;
+    border-radius: 40px;
     margin: 15px;
     padding: 10px;
 }
