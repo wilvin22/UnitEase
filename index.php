@@ -1,29 +1,36 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="index.css">
     <title>UnitEase</title>
 </head>
+
 <body>
-    <nav>
-        <ul>
-            <li><a href="#">UnitEase</a></li>
-            <li><a href="#">Contact</a></li>
-            <li><a href="#">About Us</a></li>
-        </ul>
-    </nav>
-    <div class="main-content">
-        <h1>Your Units, made Easy.</h1>
-        <p>UnitEase is a simple and efficient apartment management website designed to make handling units, tenants, and requests effortless.</p>
-        <div class="buttons">
-            <button id="login-button">Log In</button>
-            <button id="signup-button">Sign Up</button>
+    <div class=top-container>
+        <nav class="navbar">
+            <ul>
+                <li class="nav-items"><a href="#" id="unitease">UnitEase</a></li>
+                <li class="nav-items"><a href="#" id="contacts">Contacts</a></li>
+                <li class="nav-items"><a href="#" id="aboutus">About Us</a></li>
+            </ul>
+        </nav>
+        <div class="main-content">
+            <div id="slogan">
+                <h1>Your Units, made Easy.</h1>
+            </div>
+            <div id="description">
+                <p>UnitEase is a simple and efficient apartment management website designed to make handling units, tenants, and requests effortless.</p>
+            </div>
+            <div class="buttons">
+                <button id="login-button">Log In</button>
+                <button id="signup-button">Sign Up</button>
+            </div>
         </div>
     </div>
-    <div class="features">
+    <div class="bottom-container">
         <dl>
             <div class="feature-item">
                 <dt>Manage your Units</dt>
@@ -40,4 +47,5 @@
         </dl>
     </div>
 </body>
+
 </html>
