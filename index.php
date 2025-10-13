@@ -12,7 +12,7 @@
     <nav class="navbar">
             <ul>
                 <li class="nav-items">
-                    <a href="index.php" id="unitease"><span style="color: #62929E">U</span>nitEase <img src="images/logo-blue.png" alt="logo blue" style="width: 40px;"></a>
+                    <a href="index.php" id="unitease"><span style="color: #62929E">U</span>nitEase <img src="images/home-blue.png" alt="logo blue" style="width: min(40px, 5vw);"></a>
                 </li>
                 <li class="nav-items">
                     <a href="contacts.php" id="contacts">Contacts</a>
@@ -25,9 +25,9 @@
     <div class=top-container>
         <div class="main-content">
             <div id="slogan">
-                <h1>Your Units, made easy.</h1>
+                <h1>Your units, made easy.</h1>
             </div>
-            <img src="images/logo-blue.png" alt="logo blue" id="logo">
+            <img src="images/home-blue.png" alt="logo blue" id="logo">
             <div id="description">
                 <p>UnitEase is a simple and efficient apartment management website designed to make handling units, tenants, and requests effortless.</p>
             </div>
