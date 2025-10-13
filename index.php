@@ -9,10 +9,10 @@
 </head>
 
 <body>
-    <nav class="navbar">
+    <div class="navbar">
             <ul>
                 <li class="nav-items">
-                    <a href="index.php" id="unitease"><span style="color: #62929E">U</span>nitEase <img src="images/home-blue.png" alt="logo blue" style="width: min(40px, 5vw);"></a>
+                    <a href="index.php" id="unitease"><span style="color: #62929E">U</span>nitEase <img src="images/logo-blue.png" alt="logo blue" style="width: min(40px, 5vw);"></a>
                 </li>
                 <li class="nav-items">
                     <a href="contacts.php" id="contacts">Contacts</a>
@@ -21,15 +21,15 @@
                     <a href="aboutus.php" id="aboutus">About Us</a>
                 </li>
             </ul>
-        </nav>
+</div>
     <div class=top-container>
         <div class="main-content">
             <div id="slogan">
                 <h1>Your units, made easy.</h1>
             </div>
-            <img src="images/home-blue.png" alt="logo blue" id="logo">
+            <img src="images/logo-blue.png" alt="logo blue" id="logo">
             <div id="description">
-                <p>UnitEase is a simple and efficient apartment management website designed to make handling units, tenants, and requests effortless.</p>
+                <p>Tired of handling units and tenants manually? UnitEase makes handling units, tenants, and requests effortless.</p>
             </div>
             <div class="buttons">
                 <a href="login.php">
@@ -45,7 +45,7 @@
             <div class="feature-item" id="feature-1">
                 <div class="feature-text">
                     <h2>Manage your Units</h2>
-                    <img src="images/home-blue.png" alt="home icon" id="home-icon" style="width: 15%;">
+                    <img src="images/key-blue.png" alt="key icon" id="key-icon" style="width: 15%;">
                     <p>Keep all your units organized in one place.</p>
                 </div>
             </div>
