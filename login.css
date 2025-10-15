@@ -110,7 +110,7 @@ body{
     box-shadow: 0px 0px 20px rgb(168, 168, 168);
 }
 .form-content{
-    height: min(10%, 50px);
+    height: 7%;
     display:flex;
     justify-content: center;
     align-items: center;
