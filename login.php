@@ -15,8 +15,9 @@ if (isset($_POST['login-button'])) {
 
     if (mysqli_num_rows($result) == 1) {
         $row = mysqli_fetch_assoc($result);
+        $hashed_password = password_hash($password, PASSWORD_DEFAULT);
 
-        if (password_verify($password, $row['password'])) {
+        if (password_verify($password, $row['password'])){
             $_SESSION['username'] = $row['username'];
             $_SESSION['user_type'] = $row['account_type'];
             $_SESSION['logged_in'] = true;
@@ -71,7 +72,7 @@ if (isset($_POST['login-button'])) {
 
     </div>
     <div id="main-container">
-        <form action="<?php htmlspecialchars($_SERVER["PHP_SELF"]) ?>" method="post" id="login-box">
+        <form action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]) ?>" method="post" id="login-box">
             <img src="images/logo-blue.png" alt="logo blue" style="width: 40px">
             <div class="form-content">
                 <h3 style="color: #393D3F;">Log in to UnitEase</h3>
@@ -98,7 +99,7 @@ if (isset($_POST['login-button'])) {
                 </div>
             </div>
             <div class="form-content">
-                <button type="submit" id="login-button">Log In</button>
+                <button type="submit" id="login-button" name="login-button">Log In</button>
             </div>
             <div class="form-content">
                 <a href="signup.php" id="signup-button">Create new account</a>
