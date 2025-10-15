@@ -144,7 +144,6 @@ body{
     height: 40px;
     width: 180px;
     font-family: Inter-Bold, Arial;
-    backdrop-filter: blur(2px);
     color: #62929E;
     position: relative;
     z-index: 0;
@@ -163,7 +162,6 @@ body{
     transition: 0.3s;
     z-index: -1;
     border:none;
-    
 }
 #signup-button:hover::after{
     width: 100%;

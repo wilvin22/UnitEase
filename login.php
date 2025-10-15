@@ -25,34 +25,43 @@
             </li>
         </ul>
     </div>
+    <div>
+    
+    </div>
     <div id="main-container">
-
-    <h2>Login</h2>
     <form action="<?php htmlspecialchars($_SERVER["PHP_SELF"])?>" method="post" id="login-box">
-
-            <input type="text" id="username" name="username" placeholder="Username" class="input-field" required> <br>
-            <input type="password" id="password" name="password" placeholder="Password" class="input-field" required>
-        <br>
-        <div>
-            <label>Are you an Admin or a Tenant?</label>
+        <img src="images/logo-blue.png" alt="logo blue" style="width: 40px">
+        <div class="form-content"><h3 style="color: #393D3F;">Log in to UnitEase</h3></div>
+        <div class="form-content">
+            <input type="text" id="username" name="username" placeholder="Username" class="input-field" required>
         </div>
-        <br>
-        <div>
+        <div class="form-content">
+            <input type="password" id="password" name="password" placeholder="Password" class="input-field" required>
+        </div>
+        <div class="form-content">
+            <label style="font-family: Inter-Light, Arial;">Are you an Admin or a Tenant?</label>
+        </div>
+        <div class="form-content">
+            <div class="radio-buttons-container">
+                <div class="radio-buttons">
             <input type="radio" id="admin" name="user_type" value="admin" required>
             <label for="admin">Admin</label>
-        
+                </div>
+                <div class="radio-buttons">
             <input type="radio" id="tenant" name="user_type" value="tenant" required>
             <label for="tenant">Tenant</label>
+                </div>
+            </div>  
         </div>
-        <br>
-        <div>
-            <button type="submit" id="login-button">Login</button>
+        <div class="form-content">
+            <button type="submit" id="login-button">Log In</button>
         </div>
-        <br>
-        
-        <div>
-            Don't have an account? <a href="signup.php">Sign Up</a>
+        <div class="form-content">
+            <a href="signup.php" id="signup-button">Create new account</a>
         </div>
+        <span>
+            <a href="forgotpassword.php" id="forgot-password">Forgot Password?</a>
+        </span>
     </form>
     </div>
 </body>
