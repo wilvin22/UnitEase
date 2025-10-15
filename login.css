@@ -1,0 +1,117 @@
+@font-face {
+    font-family: Inter-Black;
+    src: url(fonts/Inter_18pt-Black.ttf);
+}
+@font-face {
+    font-family: Inter-Light;
+    src: url(fonts/Inter_18pt-Light.ttf);
+}
+@font-face {
+    font-family: Inter-Regular;
+    src: url(fonts/Inter_18pt-Regular.ttf);
+}
+@font-face {
+    font-family: Inter-Bold;
+    src: url(fonts/Inter_18pt-Bold.ttf);
+}
+:root{
+    --WHITE: #FDFDFF;
+    --DARK: #393D3F;
+    --LIGHT: #c6c5b9;
+}
+*{
+    padding: 0;
+    margin: 0;
+}
+body{
+    min-height: 100vh;
+    font-family: Inter-Regular;
+    background-image: url(images/leaves-background\ \(4\).jpg);
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-attachment: fixed;
+}
+.navbar{
+    background-color: var(--DARK);
+    position:fixed;
+    z-index: 3;
+    width: 100%;
+}
+.navbar ul{
+    list-style: none;
+    width: 100%;
+    display:flex;
+    justify-content: flex-end;
+    align-items: center;
+    flex-wrap:nowrap;
+}
+.nav-items{
+    height: 60px;
+    font-family: Inter-Bold, Arial;
+    text-align: center;
+}
+.nav-items:first-child{
+    margin-right: auto;
+}
+.navbar a{
+    height: 100%;
+    padding: 0 30px;
+    font-size: min(15px, 3vw);
+    text-decoration: none;
+    color: var(--WHITE);
+    display: flex;
+    align-items: center;
+    position: relative;
+    text-align: center;
+}
+.navbar a::after{
+    content:'';
+    transition: 0.3s;
+    position: absolute;
+    height: 5px;
+    width: 0;
+    bottom: 0;
+    left: 0;
+    background-color: #62929E;
+}
+.navbar a:hover::after{
+    width: 100%;
+}
+#unitease{
+    font-family: Inter-Black;
+    margin-left: 5%;
+    font-size: min(40px, 6vw);
+}
+#login-box{
+    height: 600px;
+    border: 1px solid pink;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    width: min(80%, 400px);
+}
+#main-container{
+    width: 100%;
+    height: 100vh;
+    border: 1px solid black;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+}
+.input-div{
+    width: 80%;
+    border: 1px solid black;
+    display: flex;
+    justify-content: center;
+}
+.input-field{
+    width: 80%;
+    height: 30px;
+    font-family: Inter-Regular;
+    padding: 5px;
+    font-size:medium;
+    border-radius: 7px;
+}

@@ -21,7 +21,7 @@
                     <a href="aboutus.php" id="aboutus">About Us</a>
                 </li>
             </ul>
-</div>
+    </div>
     <div class=top-container>
         <div class="main-content">
             <div id="slogan">
