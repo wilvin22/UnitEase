@@ -3,9 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="forgotpassword.css">
+    <link rel="stylesheet" href="tenant.css">
     <link rel="stylesheet" href="navbar.css">
-
     <title>Document</title>
 </head>
 <body>
@@ -22,19 +21,22 @@
                 </li>
             </ul>
     </div>
-    <h1>Forgot Password</h1>
-    <form action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]) ?>" method="post">
-    <input type="email" name="email" placeholder="Email" required>
-    <input type="text" name="username" placeholder="Username" required>
-    <input type="submit" name="submit" value="submit">
-    <?php if (!empty($message)) : ?>
-                <div class="form-content">
-                    <p style="color: <?php echo($message_type == 'success') ? 'green' : 'red';?>; font-size: 15px; margin-top: 10px;"><?php echo $message; ?></p>
-                </div>
-            <?php endif; ?>
-    </form>
+    <div id="main-content">
+    <div id="content-header">
+        <h1>Welcome to Tenant's Homepage!</h1>
+    </div>
+    <a href="tenant-unit.php">
+        <div class="features">Your Unit</div>
+    </a>
+    <a href="tenant-admin.php">
+    <div class="features">Admin Info</div>
+    </a>
+    <a href="tenant-requests.php">
+    <div class="features">Send a Request</div>
+    </a>
+    <a href="tenant-announcements.php">
+    <div class="features">View Announcements</div>
+    </a>
+    </div>
 </body>
 </html>
-<?php
-    
-?>

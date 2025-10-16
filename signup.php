@@ -52,6 +52,7 @@ if (isset($_POST['signup-button'])) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-wih2h, initial-scale=1.0">
     <link rel="stylesheet" href="signup.css">
+    <link rel="stylesheet" href="navbar.css">
     <title>Signup - UnitEase</title>
 </head>
 
@@ -72,7 +73,7 @@ if (isset($_POST['signup-button'])) {
         </ul>
     </div>
     <div id="main-container">
-        <form action="signup.php" method="post" id="form-box">
+        <form action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"])?>" method="post" id="form-box">
             <img src="images/logo-blue.png" alt="logo blue" style="width: 40px">
             <div class="form-content">
                 <h3 style="color: #393D3F;">Create New Account</h3>

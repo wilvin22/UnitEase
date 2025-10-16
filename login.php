@@ -23,10 +23,10 @@ if (isset($_POST['login-button'])) {
             $_SESSION['logged_in'] = true;
 
             if ($row['account_type'] == 'Admin') {
-                header("Location: ./admin/home.php");
+                header("Location: admin.php");
             } 
             else if ($row['account_type'] == 'Tenant'){
-                header("Location: ./tenant/home.php");
+                header("Location: tenant.php");
             }
             exit();
 
@@ -49,6 +49,7 @@ if (isset($_POST['login-button'])) {
     <meta charset="UTF-8">
     <meta name="viewport" content="wih2h=device-wih2h, initial-scale=1.0">
     <link rel="stylesheet" href="login.css">
+    <link rel="stylesheet" href="navbar.css">
     <title>Login - UnitEase</title>
 </head>
 
@@ -72,7 +73,7 @@ if (isset($_POST['login-button'])) {
 
     </div>
     <div id="main-container">
-        <form action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]) ?>" method="post" id="login-box">
+        <form action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"])?>" method="post" id="login-box">
             <img src="images/logo-blue.png" alt="logo blue" style="width: 40px">
             <div class="form-content">
                 <h3 style="color: #393D3F;">Log in to UnitEase</h3>
