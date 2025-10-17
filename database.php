@@ -3,7 +3,7 @@
     $db_host = 'localhost';
     $db_user = 'root';
     $db_pass = '';
-    $db_name = 'unitease';
+    $db_name = 'uniteasedb';
 
     try{
         $conn = mysqli_connect($db_host, $db_user, $db_pass, $db_name);

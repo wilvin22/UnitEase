@@ -27,11 +27,7 @@
 body{
     min-height: 100vh;
     font-family: Inter-Regular;
-    background-image: url(images/leaves-background\ \(4\).jpg);
-    background-position: center;
-    background-repeat: no-repeat;
-    background-size: cover;
-    background-attachment: fixed;
+    background-color: var(--LIGHT);
 }
 .navbar{
     background-color: var(--DARK);

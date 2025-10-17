@@ -20,9 +20,8 @@
     padding-right: 10px;
     padding-top: 20px;
     padding-bottom: 20px;
-    background-color: rgba(255, 255, 255, 0.137);
-    backdrop-filter: blur(5px);
-    box-shadow: 0px 0px 20px rgb(168, 168, 168);
+    background-color: #FDFDFF;
+    box-shadow: 0px 0px 20px rgb(70, 70, 70);
 }
 .form-content{
     height: 6%;
@@ -58,4 +57,7 @@
 #already-have-an-account{
     margin-top: 20px;
     margin-bottom: 20px;
+}
+.input-field{
+    border: 1px solid #C6C5B9;
 }

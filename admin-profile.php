@@ -1,6 +1,5 @@
 <?php
     include 'admin.php';
-
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -12,6 +11,6 @@
     <title>Document</title>
 </head>
 <body>
-    <h1>Manage Tenants</h1>
+    
 </body>
 </html>

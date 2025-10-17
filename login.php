@@ -29,7 +29,6 @@ if (isset($_POST['login-button'])) {
                 header("Location: tenant.php");
             }
             exit();
-
         } else {
             $message = "⚠ Incorrect password.";
             $message_type = 'error';
