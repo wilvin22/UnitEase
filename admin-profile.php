@@ -1,5 +1,7 @@
 <?php
-    include 'admin.php';
+    include 'admin-dashboard.php';
+    include 'navbar.html';
+    include 'database.php';
 ?>
 <!DOCTYPE html>
 <html lang="en">

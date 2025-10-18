@@ -1,8 +1,5 @@
 <?php
 session_start();
-include 'navbar.html';
-include 'database.php';
-
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -15,7 +12,6 @@ include 'database.php';
 
 </head>
 <body>
-<div id="main-content">
     <div class="dashboard">
         <div class="dashboard-header" id="admin">
             <img src="images/user-blue.png" alt="user icon" style="width: 40px; height: 40px; margin-right: 12px;" class="icon">
@@ -23,7 +19,7 @@ include 'database.php';
             Username: <?php echo $_SESSION['username'];?>
         </div>
         <br>
-        <a href="admin.php">
+        <a href="admin-overview.php">
             <div class="dashboard-item" id="overview">
                 <img src="images/overview-blue.png" alt="overview" style="width: 28px; height: 28px; margin-right: 4px;" class="icon">
                 Overview
@@ -68,7 +64,6 @@ include 'database.php';
             </button>
         </form>
     </div>
-</div>    
 </body>
 </html>
 <?php

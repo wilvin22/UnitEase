@@ -1,5 +1,5 @@
 <?php
-include 'admin.php';
+include 'admin-dashboard.php';
 include 'navbar.html';
 ?>
 <!DOCTYPE html>

@@ -23,7 +23,7 @@ if (isset($_POST['login-button'])) {
             $_SESSION['logged_in'] = true;
 
             if ($row['account_type'] == 'Admin') {
-                header("Location: admin.php");
+                header("Location: admin-overview.php");
             } 
             else if ($row['account_type'] == 'Tenant'){
                 header("Location: tenant.php");
