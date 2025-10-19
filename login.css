@@ -55,6 +55,7 @@
     font-size: 16px;
     color: var(--WHITE);
     background-color: var(--DARK);
+    border:none;
 }
 #username, #password{
     padding-left: 15px;
