@@ -27,7 +27,6 @@
 body{
     min-height: 100vh;
     font-family: Inter-Regular;
-    background-color: var(--LIGHT);
 }
 .navbar{
     background-color: var(--DARK);

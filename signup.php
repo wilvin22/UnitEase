@@ -5,32 +5,46 @@ $message = '';
 $message_type = '';
 
 if (isset($_POST['signup-button'])) {
+    $full_name = $_POST['full_name'];
     $email = $_POST['email'];
     $username = $_POST['username'];
     $password = $_POST['password'];
     $confirm_password = $_POST['confirm_password'];
     $phone_number = $_POST['phone_number'];
     $user_type = $_POST['user-type'];
-    $username_check = "SELECT * FROM accounts WHERE username = '$username'";
-    $username_check_result = mysqli_query($conn, $username_check);
     
     if ($password != $confirm_password) {
         $message = "⚠ Passwords don't match";
         $message_type = 'error';
     }
-    else if (mysqli_num_rows($username_check_result) > 0) {
-        $message = "⚠ Username already taken!";
-        $message_type = 'error';
-    }
-    else {
         $hashed_password = password_hash($password, PASSWORD_DEFAULT);
-
+        
         if ($user_type == 'Admin') {
-            $sql = "INSERT INTO `accounts` (`account_id`, `account_type`, `username`, `password`, `email`, `phone_number`, `reg_date`) 
-                    VALUES (NULL, 'Admin', '$username', '$hashed_password', '$email', '$phone_number', current_timestamp())";
-        } else if ($user_type == 'Tenant') {
-            $sql = "INSERT INTO `accounts` (`account_id`, `account_type`, `username`, `password`, `email`, `phone_number`, `reg_date`) 
-                    VALUES (NULL, 'Tenant', '$username', '$hashed_password', '$email', '$phone_number', current_timestamp())";
+            $admin_username_check = "SELECT * FROM admin_accounts WHERE username = '$username'";
+            $admin_username_check_result = mysqli_query($conn, $admin_username_check);
+
+            if (mysqli_num_rows($admin_username_check_result) > 0) {
+                $message = "⚠ Username already taken!";
+                $message_type = 'error';
+            }
+            else{
+            $sql = "INSERT INTO `admin_accounts` (`admin_id`, `full_name`, `username`, `password`, `email`, `phone_number`, `reg_date`) 
+                    VALUES (NULL, '$full_name', '$username', '$hashed_password', '$email', '$phone_number', current_timestamp())";
+            }
+        } 
+        
+        else if ($user_type == 'Tenant') {
+            $tenant_username_check = "SELECT * FROM tenant_accounts WHERE username = '$username'";
+            $tenant_username_check_result = mysqli_query($conn, $tenant_username_check);
+
+            if (mysqli_num_rows($tenant_username_check_result) > 0) {
+                $message = "⚠ Username already taken!";
+                $message_type = 'error';
+            }
+            else{
+            $sql = "INSERT INTO `tenant_accounts` (`tenant_id`, `full_name`, `username`, `password`, `email`, `phone_number`, `reg_date`) 
+                    VALUES (NULL, '$full_name', '$username', '$hashed_password', '$email', '$phone_number', current_timestamp())";
+            }
         }
 
         if(mysqli_query($conn, $sql)){
@@ -43,7 +57,7 @@ if (isset($_POST['signup-button'])) {
         }
        
     }
-}
+
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -77,6 +91,9 @@ if (isset($_POST['signup-button'])) {
             <img src="images/logo-blue.png" alt="logo blue" style="width: 40px">
             <div class="form-content">
                 <h3 style="color: #393D3F;">Create New Account</h3>
+            </div>
+            <div class="form-content">
+                <input type="text" id="full_name" name="full_name" placeholder="Full Name" class="input-field" required>
             </div>
             <div class="form-content">
                 <input type="text" id="username" name="username" placeholder="Username" class="input-field" required>
@@ -122,6 +139,5 @@ if (isset($_POST['signup-button'])) {
             <?php endif; ?>
         </form>
     </div>
-    <script src="index.js"></script>
 </body>
 </html>

@@ -10,22 +10,26 @@ if (isset($_POST['login-button'])) {
     $password = $_POST['password'];
     $user_type = $_POST['user-type'];
 
-    $sql = "SELECT * FROM accounts WHERE username = '$username' AND account_type = '$user_type'";
-    $result = mysqli_query($conn, $sql);
-
+    if($user_type == 'Admin'){
+        $sql = "SELECT * FROM admin_accounts WHERE username = '$username'";
+        $result = mysqli_query($conn, $sql);
+    }
+    else if($user_type == 'Tenant'){
+        $sql = "SELECT * FROM tenant_accounts WHERE username = '$username'";
+        $result = mysqli_query($conn, $sql);
+    }
     if (mysqli_num_rows($result) == 1) {
         $row = mysqli_fetch_assoc($result);
         $hashed_password = password_hash($password, PASSWORD_DEFAULT);
 
         if (password_verify($password, $row['password'])){
             $_SESSION['username'] = $row['username'];
-            $_SESSION['user_type'] = $row['account_type'];
             $_SESSION['logged_in'] = true;
 
-            if ($row['account_type'] == 'Admin') {
+            if ($user_type == 'Admin') {
                 header("Location: admin-overview.php");
             } 
-            else if ($row['account_type'] == 'Tenant'){
+            else if ($user_type == 'Tenant'){
                 header("Location: tenant.php");
             }
             exit();
