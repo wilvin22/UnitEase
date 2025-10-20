@@ -2,23 +2,38 @@
 session_start();
 include 'database.php';
 
+$message = "";
+$message_type = "";
+
 if (isset($_POST['create-unit-button'])) {
     $unit_name = $_POST['unit-name'];
     $unit_capacity = $_POST['unit-capacity'];
     $unit_floor = $_POST['unit-floor'];
     $username = $_SESSION['username'];
-
-    $get_admin_id = "SELECT admin_id FROM admin_accounts WHERE username = '$username'";
+   
+    $get_admin_id = "SELECT * FROM admin_accounts WHERE username = '$username'";
     $result = mysqli_query($conn, $get_admin_id);
     $row = mysqli_fetch_assoc($result);
     $admin_id = $row['admin_id'];
 
-    $sql = "INSERT INTO units (unit_id, unit_name, status, capacity, unit_floor, admin_id) 
-            VALUES (NULL, '$unit_name', 'Available', '$unit_capacity', '$unit_floor', '$admin_id')";
-    mysqli_query($conn, $sql);
+    $check_sql = "SELECT * FROM units WHERE unit_name = '$unit_name' AND admin_id = '$admin_id'";
+    $check_result = mysqli_query($conn, $check_sql);
 
-    header("Location: ".$_SERVER['PHP_SELF']);
-    exit();
+    if (mysqli_num_rows($check_result) > 0) {
+        $message = "A unit with this name already exists.";
+        $message_type = "error";
+    } else {
+        $sql = "INSERT INTO units (unit_id, unit_name, status, capacity, unit_floor, admin_id) 
+                VALUES (NULL, '$unit_name', 'Available', '$unit_capacity', '$unit_floor', '$admin_id')";
+
+        if (mysqli_query($conn, $sql)) {
+            $message = "Unit created successfully!";
+            $message_type = "success";
+        } else {
+            $message = "Unit could not be created.";
+            $message_type = "error";
+        }
+    }
 }
 
 if (isset($_POST['assign-tenant-button'])) {
@@ -44,14 +59,11 @@ if (isset($_POST['assign-tenant-button'])) {
     if ($current_occupancy < $capacity) {
             $sql = "INSERT INTO tenant_units (unit_id, tenant_id) VALUES ('$unit_id', '$tenant_id')";
             if (!mysqli_query($conn, $sql)) {
-                echo "<script>window.alert('Could not assign tenant!');</script>";
-            }
-        } else {
-            echo "<h1>Unit is already full!</h1>";
-    }
 
-    header("Location: ".$_SERVER['PHP_SELF']);
-    exit();
+            }
+    } else if ($current_occupancy <= $capacity){
+            echo "" ;
+    }
 }
 
 
@@ -70,6 +82,13 @@ if (isset($_POST['delete-button']) && !empty($_POST['select_unit'])) {
 ?>
 <!DOCTYPE html>
 <html lang="en">
+
+<?php
+if(isset($_SESSION['message'])){
+    echo "<script>alert('".$_SESSION['message']."');</script>";
+    unset($_SESSION['message']);
+}
+?>
 
 <head>
     <style>
@@ -314,6 +333,12 @@ if (isset($_POST['delete-button']) && !empty($_POST['select_unit'])) {
                 <div class="assign-tenant-content"><input type="text" name="unit-name" id="unit-name" placeholder="Unit Name" required></div>
                 <br>
                 <div class="assign-tenant-content"><input type="submit" value="Assign Tenant" id="assign-tenant-button" name="assign-tenant-button"></div>
+                <br>
+                <?php if (!empty($message)): ?>
+                <div class="assign-tenant-content">
+                    <p style="color: <?php echo($message_type == 'success') ? 'green' : 'red';?>; font-size: 15px; margin-top: 10px;"><?php echo $message; ?></p>
+                </div>
+            <?php endif; ?>
             </form>
         </div>
 

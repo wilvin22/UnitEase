@@ -27,9 +27,11 @@ if (isset($_POST['login-button'])) {
             $_SESSION['logged_in'] = true;
 
             if ($user_type == 'Admin') {
+                $_SESSION['admin_id'];
                 header("Location: admin-overview.php");
             } 
             else if ($user_type == 'Tenant'){
+                $_SESSION['tenant_id'];
                 header("Location: tenant.php");
             }
             exit();
@@ -111,7 +113,7 @@ if (isset($_POST['login-button'])) {
             <span>
                 <a href="forgotpassword.php" id="forgot-password">Forgot Password?</a>
             </span>
-            <?php if (!empty($message)) : ?>
+            <?php if (!empty($message)): ?>
                 <div class="form-content">
                     <p style="color: <?php echo($message_type == 'success') ? 'green' : 'red';?>; font-size: 15px; margin-top: 10px;"><?php echo $message; ?></p>
                 </div>
