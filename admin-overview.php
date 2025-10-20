@@ -1,7 +1,73 @@
 <?php
 session_start();
 include 'database.php';
-?> 
+
+if (isset($_POST['create-unit-button'])) {
+    $unit_name = $_POST['unit-name'];
+    $unit_capacity = $_POST['unit-capacity'];
+    $unit_floor = $_POST['unit-floor'];
+    $username = $_SESSION['username'];
+
+    $get_admin_id = "SELECT admin_id FROM admin_accounts WHERE username = '$username'";
+    $result = mysqli_query($conn, $get_admin_id);
+    $row = mysqli_fetch_assoc($result);
+    $admin_id = $row['admin_id'];
+
+    $sql = "INSERT INTO units (unit_id, unit_name, status, capacity, unit_floor, admin_id) 
+            VALUES (NULL, '$unit_name', 'Available', '$unit_capacity', '$unit_floor', '$admin_id')";
+    mysqli_query($conn, $sql);
+
+    header("Location: ".$_SERVER['PHP_SELF']);
+    exit();
+}
+
+if (isset($_POST['assign-tenant-button'])) {
+    $unit_name = $_POST['unit-name'];
+    $tenant_username = $_POST['tenant-username'];
+
+    $get_tenant_id = "SELECT tenant_id FROM tenant_accounts WHERE username = '$tenant_username'";
+    $tenant_result = mysqli_query($conn, $get_tenant_id);
+    $tenant_row = mysqli_fetch_assoc($tenant_result);
+    $tenant_id = $tenant_row['tenant_id'];
+
+    $get_unit_data = "SELECT unit_id, capacity FROM units WHERE unit_name = '$unit_name'";
+    $unit_result = mysqli_query($conn, $get_unit_data);
+    $unit_row = mysqli_fetch_assoc($unit_result);
+    $unit_id = $unit_row['unit_id'];
+    $capacity = $unit_row['capacity'];
+
+    $count_query = "SELECT COUNT(*) AS occupancy FROM tenant_units WHERE unit_id = '$unit_id'";
+    $count_result = mysqli_query($conn, $count_query);
+    $count_row = mysqli_fetch_assoc($count_result);
+    $current_occupancy = $count_row['occupancy'];
+
+    if ($current_occupancy < $capacity) {
+            $sql = "INSERT INTO tenant_units (unit_id, tenant_id) VALUES ('$unit_id', '$tenant_id')";
+            if (!mysqli_query($conn, $sql)) {
+                echo "<script>window.alert('Could not assign tenant!');</script>";
+            }
+        } else {
+            echo "<h1>Unit is already full!</h1>";
+    }
+
+    header("Location: ".$_SERVER['PHP_SELF']);
+    exit();
+}
+
+
+if (isset($_POST['delete-button']) && !empty($_POST['select_unit'])) {
+    $ids = implode(',', array_map('intval', $_POST['select_unit']));
+    $delete_sql = "DELETE FROM units WHERE unit_id IN ($ids)";
+    try{
+        mysqli_query($conn, $delete_sql);
+    } catch (mysqli_sql_exception){
+        echo "Could not delete units.";
+    }
+    header("Location: " . $_SERVER['PHP_SELF']);
+    exit();
+}
+
+?>
 <!DOCTYPE html>
 <html lang="en">
 
@@ -50,7 +116,7 @@ include 'database.php';
             text-decoration: none;
         }
 
-        #menu-icon:hover {
+        .menu-icon:hover {
             cursor: pointer;
         }
 
@@ -105,37 +171,84 @@ include 'database.php';
             overflow-y: scroll;
         }
 
-        .right-sidebar {
-            height: auto;
-            width: 400px;
-            background-color: #00fcb0ff;
-            position: absolute;
-            backdrop-filter: blur(5px);
-            box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
-            z-index: 10;
-            right: 0;
-
+        .add-unit {
+            display: none;
+            position: fixed;          
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            padding: 20px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.3);
+            border-radius: 8px;
+            min-width: 300px;         
+            text-align: center;    
+        }
+        .add-unit.active{
+            display: block;
         }
 
-        .right-sb-content input {
+        .add-unit-content input {
             height: 40px;
             width: 100%;
             font-size: 15px;
             border: 1px solid black;
         }
 
-        #right-sidebar-close {
+        #add-unit-close {
             display: flex;
             align-items: center;
-            width: 30%;
+            width: 40%;
         }
 
-        #right-sidebar-close:hover {
-            background-color: #333;
+        #add-unit-close:hover {
+            background-color: #d4d4d4ff;
             cursor: pointer;
         }
+
+        .assign-tenant{
+            display: none;
+            position: fixed;          
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            padding: 20px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.3);
+            border-radius: 8px;
+            min-width: 300px;         
+            text-align: center;
+        }
+        .assign-tenant.active{
+            display: block;
+        }
+
+        .assign-tenant-content input {
+            height: 40px;
+            width: 100%;
+            font-size: 15px;
+            border: 1px solid black;
+        }
+
+        #assign-tenant-close {
+            display: flex;
+            align-items: center;
+            width: 40%;
+        }
+
+        #assign-tenant-close:hover {
+            background-color: #d4d4d4ff;
+            cursor: pointer;
+        }
+
         tr{
             height:30px;
+        }
+
+        .menu-icon, .close-icon{
+            width:30px; 
+            height:30px; 
+            margin:10px;
         }
     </style>
     <meta charset="UTF-8">
@@ -146,81 +259,72 @@ include 'database.php';
 
 <body>
     <div style="background-color: #393D3F;">
-        <img onclick=Sidebar() src="images/hamburger-blue.png" alt="menu" id="menu-icon" style="width:30px; height:30px; margin:10px;">
+        <img onclick=Sidebar() src="images/hamburger-blue.png" alt="menu" class="menu-icon">
     </div>
     <div class="main-container">
         <div class="dashboard">
             <a href="admin-overview.php">
                 <div class="dashboard-item 1">
-                    <img src="images/overview-blue.png" alt="menu" id="menu-icon" style="width:30px; height:30px; margin:10px;">
+                    <img src="images/overview-blue.png" alt="menu" class="menu-icon">
                     Overview
                 </div>
             </a>
 
             <a href="admin-profile.php">
                 <div class="dashboard-item 2">
-                    <img src="images/user-blue.png" alt="menu" id="menu-icon" style="width:30px; height:30px; margin:10px;">
+                    <img src="images/user-blue.png" alt="menu" class="menu-icon">
                     Profile
                 </div>
             </a>
 
             <a href="login.php">
                 <div class="dashboard-item 7">
-                    <img src="images/logout-blue.png" alt="menu" id="menu-icon" style="width:30px; height:30px; margin:10px;">
+                    <img src="images/logout-blue.png" alt="menu" class="menu-icon">
                     Log-out
                 </div>
             </a>
         </div>
 
-        <div class="right-sidebar">
-            <div id="right-sidebar-close">
+        <div class="add-unit">
+            <div onclick=addUnit() id="add-unit-close">
+                <img src="images/close-blue.png" alt="close" class="close-icon">
+                Close
+            </div>
+            <br>
+            <form action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>" method="post">
+                <div class="add-unit-content"><input type="text" name="unit-name" id="unit-name" placeholder="Unit Name" required></div>
+                <br>
+                <div class="add-unit-content"><input type="text" name="unit-capacity" id="unit-capacity" placeholder="Unit Capacity" required></div>
+                <br>
+                <div class="add-unit-content"><input type="text" name="unit-floor" id="unit-floor" placeholder="Unit Floor" required></div>
+                <br>
+                <div class="add-unit-content"><input type="submit" value="Create Unit" id="create-unit-button" name="create-unit-button"></div>
+            </form>
+        </div>
+
+        <div class="assign-tenant">
+            <div onclick=assignTenant() id="assign-tenant-close">
                 <img src="images/close-blue.png" alt="close" id="close-icon" style="width:30px; height:30px; margin:10px;">
                 Close
             </div>
             <br>
             <form action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>" method="post">
-                <div class="right-sb-content"><input type="text" name="unit-name" id="unit-name" placeholder="Unit Name" required></div>
+                <div class="assign-tenant-content"><input type="text" name="tenant-username" id="tenant-username" placeholder="Tenant Username" required></div>
                 <br>
-                <div class="right-sb-content"><input type="text" name="unit-capacity" id="unit-capacity" placeholder="Unit Capacity" required></div>
+                <div class="assign-tenant-content"><input type="text" name="unit-name" id="unit-name" placeholder="Unit Name" required></div>
                 <br>
-                <div class="right-sb-content"><input type="text" name="unit-floor" id="unit-floor" placeholder="Unit Floor" required></div>
-                <br>
-                <div class="right-sb-content"><input type="submit" value="Create Unit" id="create-unit-button" name="create-unit-button"></div>
+                <div class="assign-tenant-content"><input type="submit" value="Assign Tenant" id="assign-tenant-button" name="assign-tenant-button"></div>
             </form>
-            <?php
-                if (isset($_POST['create-unit-button'])) {
-                    $unit_name = $_POST['unit-name'];
-                    $unit_capacity = $_POST['unit-capacity'];
-                    $unit_floor = $_POST['unit-floor'];
-                    $username = $_SESSION['username'];
-
-                    $get_admin_id = "SELECT admin_id FROM admin_accounts WHERE username = '$username'";
-                    try{
-                    $result = mysqli_query($conn, $get_admin_id);
-                    }
-                    catch(mysqli_sql_exception){
-                        echo "Could not create unit into your account.";
-                    }
-                    $row = mysqli_fetch_assoc($result);
-                    $admin_id = $row['admin_id'];
-
-                    $sql = "INSERT INTO units (unit_id, unit_name, status, capacity, unit_floor, admin_id, tenant_id) 
-                            VALUES (NULL, '$unit_name', 'Available', '$unit_capacity', '$unit_floor', '$admin_id', NULL)";
-
-                    try{
-                        mysqli_query($conn, $sql);
-                        
-                    }
-                    catch(mysqli_sql_exception){
-                        echo "error with sql statement";
-                    }
-                }
-            ?>
         </div>
+
 
         <div class="main-content" style="padding:20px;">
             <div class="cards item-1">
-                <h1>0</h1>
+                <h1><?php
+                    $sql = "SELECT * FROM units";
+                    $result = mysqli_query($conn, $sql);
+                    echo ($result) ? mysqli_num_rows($result) : 0;
+                ?></h1>
                 <br>
                 Total Units
             </div>
@@ -249,9 +353,9 @@ include 'database.php';
                     </div>
                     <br>
                     <div style="width: 100%; display:flex; justify-content:start; padding:20px; box-sizing:border-box;">
-                        <input type="submit" name="add-unit-button" value="Add New Unit" id="add-button" style="width: 150px; height: 35px; margin-bottom:10px; margin-right: 20px; border:none; background-color:#27AE60; color:white; border-radius:3px; cursor:pointer;">
-                        <input type="submit" name="assign-tenant" value="Assign a Tenant" id="assign-tenant" style="width: 150px; height: 35px; margin-bottom:10px; margin-right: 20px; border:none; background-color:#27AE60; color:white; border-radius:3px; cursor:pointer;">
-                        <input type="submit" name="edit-button" value="Edit Selected Unit" id="edit-button" style="width: 150px; height: 35px; margin-bottom:10px; margin-right: 20px; border:none; background-color:#F39C12; color:white; border-radius:3px; cursor:pointer;">
+                        <input onclick = addUnit() type="button" name="add-unit-button" value="Add New Unit" id="add-button" style="width: 150px; height: 35px; margin-bottom:10px; margin-right: 20px; border:none; background-color:#27AE60; color:white; border-radius:3px; cursor:pointer;">
+                        <input onclick = assignTenant() type="button" name="assign-tenant" value="Assign a Tenant" id="assign-tenant" style="width: 150px; height: 35px; margin-bottom:10px; margin-right: 20px; border:none; background-color:#27AE60; color:white; border-radius:3px; cursor:pointer;">
+                        <input type="button" name="edit-button" value="Edit Selected Unit" id="edit-button" style="width: 150px; height: 35px; margin-bottom:10px; margin-right: 20px; border:none; background-color:#F39C12; color:white; border-radius:3px; cursor:pointer;">
                         <input type="submit" name="delete-button" value="Delete Selected Units" id="delete-button" style="width: 200px; height: 35px; margin-bottom:10px; border:none; background-color:#E74C3C; color:white; border-radius:3px; cursor:pointer;">
                         <input type="submit" name="refresh-button" value="Refresh" id="refresh-button" style="width: 100px; height: 35px; margin-left:auto; border:none; background-color:#62929E; color:white; border-radius:3px; cursor:pointer;">
                     </div>
@@ -272,15 +376,32 @@ include 'database.php';
                                         <th>Capacity</th>
                                         <th>Unit Floor</th>
                                         <th>Status</th>
+                                        <th>Occupancy</th>
                                     </tr>";
 
                             while ($row = mysqli_fetch_assoc($result)) {
+                                $unit_id = $row['unit_id'];
+
+                                $count_query = "SELECT COUNT(*) AS occupancy FROM tenant_units WHERE unit_id = '$unit_id'";
+                                $count_result = mysqli_query($conn, $count_query);
+                                $count_row = mysqli_fetch_assoc($count_result);
+                                $current_occupancy = $count_row['occupancy'];
+
+                                if ($current_occupancy >= $row['capacity']) {
+                                    $update_status = "UPDATE units SET status = 'Full' WHERE unit_id = '$unit_id'";
+                                    mysqli_query($conn, $update_status);
+                                } else {
+                                    $update_status = "UPDATE units SET status = 'Available' WHERE unit_id = '$unit_id'";
+                                    mysqli_query($conn, $update_status);
+                                }
+
                                 echo "<tr>
                                         <td><input type='checkbox' name='select_unit[]' value='" . $row['unit_id'] . "'></td>
                                         <td>" . $row['unit_name'] . "</td>
                                         <td>" . $row['capacity'] . "</td>
                                         <td>" . $row['unit_floor'] . "</td>
                                         <td>" . $row['status'] . "</td>
+                                        <td>" . $current_occupancy . "/" .  $row['capacity'] . "</td>
                                     </tr>";
                             }
 
@@ -288,18 +409,7 @@ include 'database.php';
                                 <br>";
                                    
                         }
-                        if (isset($_POST['delete-button']) && !empty($_POST['select_unit'])) {
-                            $selected_units = $_POST['select_unit'];
-                        
-                            $ids = implode(',', array_map('intval', $selected_units));
-                            $delete_sql = "DELETE FROM units WHERE unit_id IN ($ids)";
-                            mysqli_query($conn, $delete_sql);
-
-                            echo "<script>window.location.href = window.location.href;</script>";
-                        }
-                        ?>
-
-
+                    ?>
                 </div>
             </div>
         </div>
@@ -315,9 +425,13 @@ include 'database.php';
             }
         }
 
-        function addOrEditUnit() {
-
+        function addUnit() {
+            document.querySelector('.add-unit').classList.toggle('active');
         }
+        function assignTenant() {
+            document.querySelector('.assign-tenant').classList.toggle('active');
+        }
+        
     </script>
 </body>
 
