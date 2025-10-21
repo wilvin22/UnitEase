@@ -1,8 +1,8 @@
 <!-- 
  MGA KULANG: 
-- kailangan malaman kung sino mga tenant na naka-occupy
+- requests
+- announcements
 - edit button functionality
-- show total tenants
 - search bar (optional)
 
 -->
@@ -15,6 +15,7 @@ include 'database.php';
 $message = "";
 $message_type = "";
 
+//creating a unit
 if (isset($_POST['create-unit-button'])) {
     $unit_name = $_POST['unit-name'];
     $unit_capacity = $_POST['unit-capacity'];
@@ -24,10 +25,13 @@ if (isset($_POST['create-unit-button'])) {
     $check_sql = "SELECT * FROM units WHERE unit_name = '$unit_name' AND admin_id = '$admin_id'";
     $check_result = mysqli_query($conn, $check_sql);
 
+    //if the unit name that the user input already exists in the same admin account:
     if (mysqli_num_rows($check_result) > 0) {
         $message = "❌ A unit with this name already exists.";
         $message_type = "error";
-    } else {
+    } 
+    //if it doesn't:
+    else {
         $sql = "INSERT INTO units (unit_id, unit_name, status, capacity, unit_floor, admin_id) 
                 VALUES (NULL, '$unit_name', 'Available', '$unit_capacity', '$unit_floor', '$admin_id')";
 
@@ -41,56 +45,60 @@ if (isset($_POST['create-unit-button'])) {
     }
 }
 
+//assigning a tenant
 if (isset($_POST['assign-tenant-button'])) {
     $unit_name = $_POST['unit-name'];
     $tenant_username = $_POST['tenant-username'];
 
+    //query to check if the tenant that the user input exists
     $get_tenant = "SELECT tenant_id FROM tenant_accounts WHERE username = '$tenant_username'";
     $tenant_result = mysqli_query($conn, $get_tenant);
 
+    //if it doesn't:
     if (mysqli_num_rows($tenant_result) <= 0) {
         $message = "❌ Tenant does not exist.";
         $message_type = "error";
-    } else {
+    } 
+    //if it does:
+    else {
         $tenant_row = mysqli_fetch_assoc($tenant_result);
         $tenant_id = $tenant_row['tenant_id'];
 
-        $get_unit_data = "SELECT unit_id, capacity FROM units WHERE unit_name = '$unit_name'";
-        $unit_result = mysqli_query($conn, $get_unit_data);
+        $get_unit_id = "SELECT unit_id FROM units WHERE unit_name = '$unit_name'";
+        $unit_result = mysqli_query($conn, $get_unit_id);
+        $unit_row = mysqli_fetch_assoc($unit_result);
+        $unit_id = $unit_row['unit_id'];
 
+        //checks if the unit exists
+        //if it doesn't:
         if (mysqli_num_rows($unit_result) <= 0) {
             $message = "❌ Unit does not exist.";
             $message_type = "error";
-        } else {
-            $unit_row = mysqli_fetch_assoc($unit_result);
-            $unit_id = $unit_row['unit_id'];
-            $capacity = $unit_row['capacity'];
+        } 
+        //if it does:
+        //at this point, both the tenant and the unit exists
+        else {
+            $check_tenant = "SELECT * FROM tenant_units WHERE tenant_id = '$tenant_id'";
+            $check_tenant_result = mysqli_query($conn, $check_tenant);
+            $tenant_row = mysqli_num_rows($check_tenant_result);
 
-            $count_query = "SELECT COUNT(*) AS occupancy FROM tenant_units WHERE unit_id = '$unit_id'";
-            $count_result = mysqli_query($conn, $count_query);
-            $count_row = mysqli_fetch_assoc($count_result);
-            $current_occupancy = $count_row['occupancy'];
-
-            $check_assignment = "SELECT * FROM tenant_units WHERE unit_id = '$unit_id' AND tenant_id = '$tenant_id'";
-            $assignment_result = mysqli_query($conn, $check_assignment);
-
-            if (mysqli_num_rows($assignment_result) > 0) {
-                $message = "❌ Tenant is already assigned to this unit.";
+            //checks if tenant has already been assigned to another unit
+            if($tenant_row > 0){
+                $message = "The tenant is already assigned to an existing unit.";
                 $message_type = "error";
             }
-
-            if ($current_occupancy < $capacity) {
-                $sql = "INSERT INTO tenant_units (unit_id, tenant_id) VALUES ('$unit_id', '$tenant_id')";
-                if (!mysqli_query($conn, $sql) && !mysqli_query($conn, $stmt)) {
-                    $message = "❌ Error assigning tenant.";
-                    $message_type = "error";
-                } else {
-                    $message = "✅ Tenant assigned successfully.";
-                    $message_type = "success";
-                }
-            } else {
-                $message = "❌ Unit is already full.";
-                $message_type = "error";
+            //if all requirements were met:
+            else{
+                $sql = "INSERT INTO `tenant_units` (`id`,`unit_id`, `tenant_id`, `date_assigned`)
+                        VALUES (NULL, '$unit_id', '$tenant_id', current_timestamp());";
+                        try{
+                        mysqli_query($conn, $sql);
+                        $message = "✅ Tenant assigned successfully.";
+                        $message_type = "success";
+                        } catch(mysql_sql_exception){
+                            $message = "Could not assign tenant.";
+                            $message_type = "error";
+                        }
             }
         }
     }
@@ -230,6 +238,7 @@ if (isset($_SESSION['message'])) {
             display: flex;
             flex-direction: column;
             overflow-y: scroll;
+            margin-bottom: 5vh;
         }
 
         .add-unit {
@@ -391,7 +400,10 @@ if (isset($_SESSION['message'])) {
             </div>
             <br>
             <form action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>" method="post">
-                <div class="add-unit-content"><input type="text" name="unit-name" id="unit-name" placeholder="Unit Name" required></div>
+                <div class="add-unit-content">
+                    <label for="unit-name">Add New Unit</label>
+                    <br><br>
+                    <input type="text" name="unit-name" id="unit-name" placeholder="Unit Name" required></div>
                 <br>
                 <div class="add-unit-content"><input type="text" name="unit-capacity" id="unit-capacity" placeholder="Unit Capacity" required></div>
                 <br>
@@ -408,9 +420,13 @@ if (isset($_SESSION['message'])) {
             </div>
             <br>
             <form action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>" method="post">
-                <div class="assign-tenant-content"><input type="text" name="tenant-username" id="tenant-username" placeholder="Tenant Username" required></div>
+                <div class="assign-tenant-content">
+                    <label for="tenant-username">Assign a Tenant</label>
+                    <br><br>
+                    <input type="text" name="tenant-username" id="tenant-username" placeholder="Tenant Username" required></div>
                 <br>
-                <div class="assign-tenant-content"><input type="text" name="unit-name" id="unit-name" placeholder="Unit Name" required></div>
+                <div class="assign-tenant-content">
+                    <input type="text" name="unit-name" id="unit-name" placeholder="Unit Name" required></div>
                 <br>
                 <div class="assign-tenant-content"><input type="submit" value="Assign Tenant" id="assign-tenant-button" name="assign-tenant-button"></div>
                 <br>
@@ -617,11 +633,9 @@ if (isset($_SESSION['message'])) {
             } else if (count > 1) {
                 alert("Please select only one unit to edit.");
             } else {
-                document.querySelector('.edit-unit').classList.add('active');
+                document.querySelector('.edit-unit').classList.toggle('active');
             }
         }
-
-
     </script>
 </body>
 
