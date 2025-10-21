@@ -1,3 +1,13 @@
+<!-- 
+ MGA KULANG: 
+- kailangan malaman kung sino mga tenant na naka-occupy
+- edit button functionality
+- show total tenants
+- search bar (optional)
+
+-->
+
+
 <?php
 session_start();
 include 'database.php';
@@ -9,28 +19,23 @@ if (isset($_POST['create-unit-button'])) {
     $unit_name = $_POST['unit-name'];
     $unit_capacity = $_POST['unit-capacity'];
     $unit_floor = $_POST['unit-floor'];
-    $username = $_SESSION['username'];
-   
-    $get_admin_id = "SELECT * FROM admin_accounts WHERE username = '$username'";
-    $result = mysqli_query($conn, $get_admin_id);
-    $row = mysqli_fetch_assoc($result);
-    $admin_id = $row['admin_id'];
 
+    $admin_id = $_SESSION['admin_id'];
     $check_sql = "SELECT * FROM units WHERE unit_name = '$unit_name' AND admin_id = '$admin_id'";
     $check_result = mysqli_query($conn, $check_sql);
 
     if (mysqli_num_rows($check_result) > 0) {
-        $message = "A unit with this name already exists.";
+        $message = "❌ A unit with this name already exists.";
         $message_type = "error";
     } else {
         $sql = "INSERT INTO units (unit_id, unit_name, status, capacity, unit_floor, admin_id) 
                 VALUES (NULL, '$unit_name', 'Available', '$unit_capacity', '$unit_floor', '$admin_id')";
 
         if (mysqli_query($conn, $sql)) {
-            $message = "Unit created successfully!";
+            $message = "✅ Unit created successfully!";
             $message_type = "success";
         } else {
-            $message = "Unit could not be created.";
+            $message = "❌ Unit could not be created.";
             $message_type = "error";
         }
     }
@@ -40,29 +45,66 @@ if (isset($_POST['assign-tenant-button'])) {
     $unit_name = $_POST['unit-name'];
     $tenant_username = $_POST['tenant-username'];
 
-    $get_tenant_id = "SELECT tenant_id FROM tenant_accounts WHERE username = '$tenant_username'";
-    $tenant_result = mysqli_query($conn, $get_tenant_id);
-    $tenant_row = mysqli_fetch_assoc($tenant_result);
-    $tenant_id = $tenant_row['tenant_id'];
+    $get_tenant = "SELECT tenant_id FROM tenant_accounts WHERE username = '$tenant_username'";
+    $tenant_result = mysqli_query($conn, $get_tenant);
 
-    $get_unit_data = "SELECT unit_id, capacity FROM units WHERE unit_name = '$unit_name'";
-    $unit_result = mysqli_query($conn, $get_unit_data);
-    $unit_row = mysqli_fetch_assoc($unit_result);
-    $unit_id = $unit_row['unit_id'];
-    $capacity = $unit_row['capacity'];
+    if (mysqli_num_rows($tenant_result) <= 0) {
+        $message = "❌ Tenant does not exist.";
+        $message_type = "error";
+    } else {
+        $tenant_row = mysqli_fetch_assoc($tenant_result);
+        $tenant_id = $tenant_row['tenant_id'];
 
-    $count_query = "SELECT COUNT(*) AS occupancy FROM tenant_units WHERE unit_id = '$unit_id'";
-    $count_result = mysqli_query($conn, $count_query);
-    $count_row = mysqli_fetch_assoc($count_result);
-    $current_occupancy = $count_row['occupancy'];
+        $get_unit_data = "SELECT unit_id, capacity FROM units WHERE unit_name = '$unit_name'";
+        $unit_result = mysqli_query($conn, $get_unit_data);
 
-    if ($current_occupancy < $capacity) {
-            $sql = "INSERT INTO tenant_units (unit_id, tenant_id) VALUES ('$unit_id', '$tenant_id')";
-            if (!mysqli_query($conn, $sql)) {
+        if (mysqli_num_rows($unit_result) <= 0) {
+            $message = "❌ Unit does not exist.";
+            $message_type = "error";
+        } else {
+            $unit_row = mysqli_fetch_assoc($unit_result);
+            $unit_id = $unit_row['unit_id'];
+            $capacity = $unit_row['capacity'];
 
+            $count_query = "SELECT COUNT(*) AS occupancy FROM tenant_units WHERE unit_id = '$unit_id'";
+            $count_result = mysqli_query($conn, $count_query);
+            $count_row = mysqli_fetch_assoc($count_result);
+            $current_occupancy = $count_row['occupancy'];
+
+            $check_assignment = "SELECT * FROM tenant_units WHERE unit_id = '$unit_id' AND tenant_id = '$tenant_id'";
+            $assignment_result = mysqli_query($conn, $check_assignment);
+
+            if (mysqli_num_rows($assignment_result) > 0) {
+                $message = "❌ Tenant is already assigned to this unit.";
+                $message_type = "error";
             }
-    } else if ($current_occupancy <= $capacity){
-            echo "" ;
+
+            if ($current_occupancy < $capacity) {
+                $sql = "INSERT INTO tenant_units (unit_id, tenant_id) VALUES ('$unit_id', '$tenant_id')";
+                if (!mysqli_query($conn, $sql) && !mysqli_query($conn, $stmt)) {
+                    $message = "❌ Error assigning tenant.";
+                    $message_type = "error";
+                } else {
+                    $message = "✅ Tenant assigned successfully.";
+                    $message_type = "success";
+                }
+            } else {
+                $message = "❌ Unit is already full.";
+                $message_type = "error";
+            }
+        }
+    }
+}
+
+if(isset($_POST['edit-unit-button'])){
+    if(empty($_POST['select_unit'])){
+        $message = "Please select a unit to edit.";
+    }
+    else if (($_POST['select_unit']) > 1){
+        $message = "Select only one(1) unit to edit.";
+    }
+    else{
+
     }
 }
 
@@ -70,9 +112,9 @@ if (isset($_POST['assign-tenant-button'])) {
 if (isset($_POST['delete-button']) && !empty($_POST['select_unit'])) {
     $ids = implode(',', array_map('intval', $_POST['select_unit']));
     $delete_sql = "DELETE FROM units WHERE unit_id IN ($ids)";
-    try{
+    try {
         mysqli_query($conn, $delete_sql);
-    } catch (mysqli_sql_exception){
+    } catch (mysqli_sql_exception) {
         echo "Could not delete units.";
     }
     header("Location: " . $_SERVER['PHP_SELF']);
@@ -84,8 +126,8 @@ if (isset($_POST['delete-button']) && !empty($_POST['select_unit'])) {
 <html lang="en">
 
 <?php
-if(isset($_SESSION['message'])){
-    echo "<script>alert('".$_SESSION['message']."');</script>";
+if (isset($_SESSION['message'])) {
+    echo "<script>alert('" . $_SESSION['message'] . "');</script>";
     unset($_SESSION['message']);
 }
 ?>
@@ -192,18 +234,19 @@ if(isset($_SESSION['message'])){
 
         .add-unit {
             display: none;
-            position: fixed;          
+            position: fixed;
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
             background: white;
             padding: 20px;
-            box-shadow: 0 0 10px rgba(0,0,0,0.3);
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
             border-radius: 8px;
-            min-width: 300px;         
-            text-align: center;    
+            min-width: 300px;
+            text-align: center;
         }
-        .add-unit.active{
+
+        .add-unit.active {
             display: block;
         }
 
@@ -225,20 +268,21 @@ if(isset($_SESSION['message'])){
             cursor: pointer;
         }
 
-        .assign-tenant{
+        .assign-tenant {
             display: none;
-            position: fixed;          
+            position: fixed;
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
             background: white;
             padding: 20px;
-            box-shadow: 0 0 10px rgba(0,0,0,0.3);
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
             border-radius: 8px;
-            min-width: 300px;         
+            min-width: 300px;
             text-align: center;
         }
-        .assign-tenant.active{
+
+        .assign-tenant.active {
             display: block;
         }
 
@@ -260,14 +304,50 @@ if(isset($_SESSION['message'])){
             cursor: pointer;
         }
 
-        tr{
-            height:30px;
+        .edit-unit {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            padding: 20px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+            border-radius: 8px;
+            min-width: 300px;
+            text-align: center;
         }
 
-        .menu-icon, .close-icon{
-            width:30px; 
-            height:30px; 
-            margin:10px;
+        .edit-unit.active {
+            display: block;
+        }
+
+        .edit-unit-content input {
+            height: 40px;
+            width: 100%;
+            font-size: 15px;
+            border: 1px solid black;
+        }
+
+        #edit-unit-close {
+            display: flex;
+            align-items: center;
+            width: 40%;
+        }
+
+        #edit-unit-close:hover {
+            background-color: #d4d4d4ff;
+            cursor: pointer;
+        }
+
+        tr {
+            height: 30px;
+        }
+        .menu-icon,
+        .close-icon {
+            width: 30px;
+            height: 30px;
+            margin: 10px;
         }
     </style>
     <meta charset="UTF-8">
@@ -334,13 +414,31 @@ if(isset($_SESSION['message'])){
                 <br>
                 <div class="assign-tenant-content"><input type="submit" value="Assign Tenant" id="assign-tenant-button" name="assign-tenant-button"></div>
                 <br>
-                <?php if (!empty($message)): ?>
-                <div class="assign-tenant-content">
-                    <p style="color: <?php echo($message_type == 'success') ? 'green' : 'red';?>; font-size: 15px; margin-top: 10px;"><?php echo $message; ?></p>
-                </div>
-            <?php endif; ?>
             </form>
         </div>
+
+        <div class="edit-unit">
+            <div onclick=editUnit() id="edit-unit-close">
+                <img src="images/close-blue.png" alt="close" id="close-icon" style="width:30px; height:30px; margin:10px;">
+                Close
+            </div>
+            <br>
+            <form action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>" method="post">
+                <div class="edit-unit-content"><input type="text" name="edit-unit-name" id="edit-unit-name" placeholder="Edit Unit Name (Leave empty to ignore)"></div>
+                <br>
+                <div class="edit-unit-content"><input type="text" name="edit-unit-capacity" id="edit-unit-capacity" placeholder="Edit Unit Capacity (Leave empty to ignore)"></div>
+                <br>
+                <div class="edit-unit-content"><input type="text" name="edit-unit-floor" id="edit-unit-floor" placeholder="Edit Unit Floor (Leave empty to ignore)"></div>
+                <br>
+                <div class="edit-unit-content"><input type="text" name="edit-unit-status" id="edit-unit-status" placeholder="Edit Unit Status (Leave empty to ignore)"></div>
+                <br>
+                <div class="edit-unit-content"><input type="text" name="edit-unit-occupancy" id="edit-unit-occupancy" placeholder="Edit Unit Occupancy (Leave empty to ignore)"></div>
+                <br>
+                <div class="edit-unit-content"><input type="submit" value="Edit Unit" id="edit-unit-button" name="edit-unit-button"></div>
+                <br>
+            </form>
+        </div>
+
 
 
         <div class="main-content" style="padding:20px;">
@@ -349,20 +447,39 @@ if(isset($_SESSION['message'])){
                     $sql = "SELECT * FROM units";
                     $result = mysqli_query($conn, $sql);
                     echo ($result) ? mysqli_num_rows($result) : 0;
-                ?></h1>
+                    ?></h1>
                 <br>
                 Total Units
             </div>
 
 
             <div class="cards item-2">
-                <h1>0</h1>
+                <h1>
+                    <?php
+                    $sql = "SELECT * FROM units WHERE status = 'Available'";
+                    $result = mysqli_query($conn, $sql);
+                    echo ($result) ? mysqli_num_rows($result) : 0;
+                    ?></h1>
                 <br>
-                Occupied Units
+                Available Units
 
             </div>
             <div class="cards item-3">
-                <h1>0</h1>
+                <h1>
+                    <?php
+                    $admin_id = $_SESSION['admin_id'];
+
+                    $sql = "SELECT COUNT(DISTINCT tu.tenant_id) AS tenant_count
+                            FROM tenant_units tu
+                            JOIN units u ON tu.unit_id = u.unit_id
+                            WHERE u.admin_id = '$admin_id'";
+
+                    $result = mysqli_query($conn, $sql);
+                    $row = mysqli_fetch_assoc($result);
+
+                    echo $row['tenant_count'];
+                    ?>
+                </h1>
                 <br>
                 Total Tenants
             </div>
@@ -371,23 +488,39 @@ if(isset($_SESSION['message'])){
                     <h1>Overview</h1>
                 </div>
                 <br>
-                <form action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]);?>" method="post" style="width: 100%; display:flex; flex-direction:column; align-items:start;">
+                <form action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>" method="post" style="width: 100%; display:flex; flex-direction:column; align-items:start;">
                     <div style="width: 100%; display:flex; justify-content:start;">
                         <input type="text" name="search" id="search" placeholder="Search Units" class="form-content" style="width: 300px; height: 35px; border: 1px solid #ccc; border-radius: 3px; margin-bottom: 10px; padding-left:20px; outline:none;">
                         <input type="submit" name="search-button" value="Search" id="button" style="width: 100px; height: 35px; margin-left: 10px; border:none; background-color:#62929E; color:white; border-radius:3px; cursor:pointer;">
+                        <?php if (!empty($message)) : ?>
+                            <span style="color: <?php echo ($message_type == 'success') ? 'green' : 'red'; ?>; margin-left:auto;"><?php echo $message ?></span>
+
+                        <?php endif; ?>
+
                     </div>
                     <br>
                     <div style="width: 100%; display:flex; justify-content:start; padding:20px; box-sizing:border-box;">
-                        <input onclick = addUnit() type="button" name="add-unit-button" value="Add New Unit" id="add-button" style="width: 150px; height: 35px; margin-bottom:10px; margin-right: 20px; border:none; background-color:#27AE60; color:white; border-radius:3px; cursor:pointer;">
-                        <input onclick = assignTenant() type="button" name="assign-tenant" value="Assign a Tenant" id="assign-tenant" style="width: 150px; height: 35px; margin-bottom:10px; margin-right: 20px; border:none; background-color:#27AE60; color:white; border-radius:3px; cursor:pointer;">
-                        <input type="button" name="edit-button" value="Edit Selected Unit" id="edit-button" style="width: 150px; height: 35px; margin-bottom:10px; margin-right: 20px; border:none; background-color:#F39C12; color:white; border-radius:3px; cursor:pointer;">
+                        <input onclick=addUnit() type="button" name="add-unit-button" value="Add New Unit" id="add-button" style="width: 150px; height: 35px; margin-bottom:10px; margin-right: 20px; border:none; background-color:#27AE60; color:white; border-radius:3px; cursor:pointer;">
+                        <input onclick=assignTenant() type="button" name="assign-tenant" value="Assign a Tenant" id="assign-tenant" style="width: 150px; height: 35px; margin-bottom:10px; margin-right: 20px; border:none; background-color:#27AE60; color:white; border-radius:3px; cursor:pointer;">
+                        <input onclick=editUnit() type="button" name="edit-button" value="Edit Selected Unit" id="edit-button" style="width: 150px; height: 35px; margin-bottom:10px; margin-right: 20px; border:none; background-color:#F39C12; color:white; border-radius:3px; cursor:pointer;">
                         <input type="submit" name="delete-button" value="Delete Selected Units" id="delete-button" style="width: 200px; height: 35px; margin-bottom:10px; border:none; background-color:#E74C3C; color:white; border-radius:3px; cursor:pointer;">
                         <input type="submit" name="refresh-button" value="Refresh" id="refresh-button" style="width: 100px; height: 35px; margin-left:auto; border:none; background-color:#62929E; color:white; border-radius:3px; cursor:pointer;">
                     </div>
-                <br>
-                <div class="table-container" style="height: 100%; display:flex; width:100%; overflow-y:auto; justify-content:center; align-items:center;">
-                    <?php
-                        $sql = "SELECT * FROM `units`";
+                    <br>
+                    <div class="table-container" style="height: 100%; display:flex; width:100%; overflow-y:auto; justify-content:center; align-items:center;">
+                        <?php
+                        $sql = "SELECT 
+                                    u.unit_id,
+                                    u.unit_name,
+                                    u.capacity,
+                                    u.unit_floor,
+                                    u.status,
+                                    GROUP_CONCAT(t.full_name SEPARATOR ', ') AS tenants
+                                FROM units u
+                                LEFT JOIN tenant_units tu ON u.unit_id = tu.unit_id
+                                LEFT JOIN tenant_accounts t ON tu.tenant_id = t.tenant_id
+                                WHERE u.admin_id = '$admin_id'
+                                GROUP BY u.unit_id, u.unit_name, u.capacity, u.unit_floor, u.status";
                         $result = mysqli_query($conn, $sql);
 
                         if (mysqli_num_rows($result) <= 0) {
@@ -402,6 +535,7 @@ if(isset($_SESSION['message'])){
                                         <th>Unit Floor</th>
                                         <th>Status</th>
                                         <th>Occupancy</th>
+                                        <th>Tenant</th>
                                     </tr>";
 
                             while ($row = mysqli_fetch_assoc($result)) {
@@ -413,11 +547,20 @@ if(isset($_SESSION['message'])){
                                 $current_occupancy = $count_row['occupancy'];
 
                                 if ($current_occupancy >= $row['capacity']) {
+                                    $status = 'Full';
                                     $update_status = "UPDATE units SET status = 'Full' WHERE unit_id = '$unit_id'";
                                     mysqli_query($conn, $update_status);
                                 } else {
+                                    $status = 'Available';
                                     $update_status = "UPDATE units SET status = 'Available' WHERE unit_id = '$unit_id'";
                                     mysqli_query($conn, $update_status);
+                                }
+
+                                if ($status == 'Full') {
+                                    $status_bg = '#f99';
+                                } 
+                                else {
+                                    $status_bg = '#A1D998';
                                 }
 
                                 echo "<tr>
@@ -425,17 +568,17 @@ if(isset($_SESSION['message'])){
                                         <td>" . $row['unit_name'] . "</td>
                                         <td>" . $row['capacity'] . "</td>
                                         <td>" . $row['unit_floor'] . "</td>
-                                        <td>" . $row['status'] . "</td>
+                                        <td style='background-color: $status_bg;'>" . $status . "</td>
                                         <td>" . $current_occupancy . "/" .  $row['capacity'] . "</td>
+                                        <td>" . ($row['tenants'] ? $row['tenants'] : '—') . "</td>
                                     </tr>";
                             }
 
                             echo "</table>
                                 <br>";
-                                   
                         }
-                    ?>
-                </div>
+                        ?>
+                    </div>
             </div>
         </div>
     </div>
@@ -448,15 +591,37 @@ if(isset($_SESSION['message'])){
             } else {
                 dashboard.style.display = 'block';
             }
+
         }
 
         function addUnit() {
             document.querySelector('.add-unit').classList.toggle('active');
         }
+
         function assignTenant() {
             document.querySelector('.assign-tenant').classList.toggle('active');
         }
-        
+
+        function editUnit() {
+            var checkboxes = document.getElementsByName("select_unit[]");
+            var count = 0;  
+
+            for (var i = 0; i < checkboxes.length; i++) {
+                if (checkboxes[i].checked) {
+                    count++;  
+                }
+            }
+
+            if (count == 0) {
+                alert("Please select a unit to edit.");
+            } else if (count > 1) {
+                alert("Please select only one unit to edit.");
+            } else {
+                document.querySelector('.edit-unit').classList.add('active');
+            }
+        }
+
+
     </script>
 </body>
 

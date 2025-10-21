@@ -20,18 +20,17 @@ if (isset($_POST['login-button'])) {
     }
     if (mysqli_num_rows($result) == 1) {
         $row = mysqli_fetch_assoc($result);
-        $hashed_password = password_hash($password, PASSWORD_DEFAULT);
 
         if (password_verify($password, $row['password'])){
             $_SESSION['username'] = $row['username'];
             $_SESSION['logged_in'] = true;
 
             if ($user_type == 'Admin') {
-                $_SESSION['admin_id'];
+                $_SESSION['admin_id'] = $row['admin_id'];
                 header("Location: admin-overview.php");
             } 
             else if ($user_type == 'Tenant'){
-                $_SESSION['tenant_id'];
+                $_SESSION['tenant_id'] = $row['tenant_id'];
                 header("Location: tenant.php");
             }
             exit();
