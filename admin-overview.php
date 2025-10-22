@@ -296,7 +296,7 @@ if (isset($_SESSION['message'])) {
             background-color: white;
             box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.1);
             border-radius: 8px;
-            padding: 40px;
+            padding: 20px;
             margin: 10px;
             box-sizing: border-box;
             text-align: center;
@@ -324,6 +324,7 @@ if (isset($_SESSION['message'])) {
             display: flex;
             flex-direction: column;
             overflow-y: scroll;
+            overflow-x: scroll;
             margin-bottom: 5vh;
         }
 
@@ -487,6 +488,46 @@ if (isset($_SESSION['message'])) {
             height: 40px;
             text-align: center;
             outline: none;
+        }
+        .overview-buttons-container{
+            width: 100%;   
+            display:flex;
+            justify-content: start;
+            height: 60px;
+            gap: 5px;
+        }
+        .overview-buttons{
+            border:none;
+            outline: none;
+            flex: 1;                            
+            padding: 10px;
+            box-sizing: border-box;
+            color:white;
+            font-family: Inter-Regular;
+            cursor: pointer;
+            background-color: #e2e2e2ff;
+            color: #222222ff;
+            font-size:16px;
+        }
+        #send-announcement, #view-requests{
+            background-color: var(--LIGHT);
+            color: #383838ff;
+        }
+        #send-announcement:hover{
+            background-color: #9c9c9cff;
+        }
+        #view-requests:hover{
+            background-color: #9c9c9cff;
+        }
+        #remove-tenant, #delete-button{
+            background-color: #fc8d8fff;
+            color: #222222ff;
+        }
+
+        .table-container{
+            width: 100%;   
+            overflow-x: scroll;
+            min-width: 1195px;
         }
     </style>
     <meta charset="UTF-8">
@@ -665,18 +706,18 @@ if (isset($_SESSION['message'])) {
 
                     </div>
                     <br>
-                    <div style="width: 100%; display:flex; justify-content:start; padding:20px; box-sizing:border-box;">
-                        <input onclick=addUnit() type="button" name="add-unit-button" value="Add New Unit" id="add-button" style="width: 150px; height: 35px; margin-bottom:10px; margin-right: 20px; border:none; background-color:#27AE60; color:white; border-radius:3px; cursor:pointer;">
-                        <input onclick=assignTenant() type="button" name="assign-tenant" value="Assign a Tenant" id="assign-tenant" style="width: 150px; height: 35px; margin-bottom:10px; margin-right: 20px; border:none; background-color:#27AE60; color:white; border-radius:3px; cursor:pointer;">
-                        <input onclick=removeTenant() type="button" name="remove-tenant" value="Remove a Tenant" id="remove-tenant" style="width: 150px; height: 35px; margin-bottom:10px; margin-right: 20px; border:none; background-color:#E74C3C; color:white; border-radius:3px; cursor:pointer;">
-                        <input onclick=editUnit() type="button" name="edit-button" value="Edit Selected Unit" id="edit-button" style="width: 150px; height: 35px; margin-bottom:10px; margin-right: 20px; border:none; background-color:#F39C12; color:white; border-radius:3px; cursor:pointer;">
-                        <input onclick=sendAnnounncement() type="button" name="send-announcement" value="Send Announcement" id="send-announcement" style="width: 150px; height: 35px; margin-bottom:10px; margin-right: 20px; border:none; background-color:#27AE60; color:white; border-radius:3px; cursor:pointer;">
-                        <input onclick=viewRequests() type="button" name="view-requests" value="View Requests" id="view-requests" style="width: 150px; height: 35px; margin-bottom:10px; margin-right: 20px; border:none; background-color:#27AE60; color:white; border-radius:3px; cursor:pointer;">
-                        <input type="submit" name="delete-button" value="Delete Selected Units" id="delete-button" style="width: 200px; height: 35px; margin-bottom:10px; border:none; background-color:#E74C3C; color:white; border-radius:3px; cursor:pointer;">
-                        <input type="submit" name="refresh-button" value="Refresh" id="refresh-button" style="width: 100px; height: 35px; margin-left:auto; border:none; background-color:#62929E; color:white; border-radius:3px; cursor:pointer;">
+                    <div class="overview-buttons-container">
+                        <input class="overview-buttons" onclick=addUnit() type="button" name="add-unit-button" value="Add New Unit" id="add-button">
+                        <input class="overview-buttons" onclick=assignTenant() type="button" name="assign-tenant" value="Assign a Tenant" id="assign-tenant">
+                        <input class="overview-buttons" onclick=editUnit() type="button" name="edit-button" value="Edit Selected Unit" id="edit-button">
+                        <input class="overview-buttons" onclick=removeTenant() type="button" name="remove-tenant" value="Remove a Tenant" id="remove-tenant">
+                        <input class="overview-buttons" type="submit" name="delete-button" value="Delete Selected Units" id="delete-button">
+                        <input class="overview-buttons" onclick=sendAnnounncement() type="button" name="send-announcement" value="Send Announcement" id="send-announcement">
+                        <input class="overview-buttons" onclick=viewRequests() type="button" name="view-requests" value="View Requests" id="view-requests">
+                        <input class="overview-buttons" type="submit" name="refresh-button" value="Refresh" id="refresh-button">
                     </div>
                     <br>
-                    <div class="table-container" style="height: 100%; display:flex; width:100%; overflow-y:auto; justify-content:center; align-items:center;">
+                    <div class="table-container" style="height: 100%; width:100%; overflow-y:auto; justify-content:center; align-items:center;">
                         <?php
                         $sql = "SELECT 
                                     u.unit_id,
@@ -696,7 +737,7 @@ if (isset($_SESSION['message'])) {
                             echo "Looks like you don't have any units added yet. Please add units to manage them here.";
                         } else {
                             echo "
-                                <table border='1' style='border-collapse: collapse; width: 90%; text-align: center;'>
+                                <table border='1' style='border-collapse: collapse; border-color: black; width: 100%; text-align: center; border-radius: 20px;'>
                                     <tr style='background-color: #62929E; color: white;'>
                                         <th>Select</th>                                   
                                         <th>Unit Name</th>
@@ -726,9 +767,11 @@ if (isset($_SESSION['message'])) {
                                 }
 
                                 if ($status == 'Full') {
-                                    $status_bg = '#f99';
+                                    $status_bg = '#fc8d8fff';
+                                    $status_color = "black";
                                 } else {
-                                    $status_bg = '#A1D998';
+                                    $status_bg = '#8ac7bb';
+                                    $status_color = "black";
                                 }
 
                                 echo "<tr>
@@ -736,7 +779,7 @@ if (isset($_SESSION['message'])) {
                                         <td>" . $row['unit_name'] . "</td>
                                         <td>" . $row['capacity'] . "</td>
                                         <td>" . $row['unit_floor'] . "</td>
-                                        <td style='background-color: $status_bg;'>" . $status . "</td>
+                                        <td style='background-color: $status_bg; color: $status_color;'>" . $status . "</td>
                                         <td>" . $current_occupancy . "/" .  $row['capacity'] . "</td>
                                         <td>" . ($row['tenants'] ? $row['tenants'] : '—') . "</td>
                                     </tr>";
@@ -758,10 +801,9 @@ if (isset($_SESSION['message'])) {
                     <div style="width: 100%; display:flex; justify-content:start;">
 
                         <?php if (!empty($message)) : ?>
-                            <span style="color: <?php echo ($message_type == 'success') ? 'green' : 'red'; ?>; margin-left:auto;"><?php echo $message ?></span>
-
+                            <span style="color: <?php echo ($message_type == 'success') ? 'green' : 'red'; ?>; margin-left:auto;"><?php echo $message ?>
+                        </span>
                         <?php endif; ?>
-
                     </div>
                     <br>
 
