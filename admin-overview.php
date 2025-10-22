@@ -137,13 +137,17 @@ if (isset($_POST['remove-tenant-button'])) {
     if (mysqli_num_rows($tenant_result) <= 0) {
         $message = "❌ Tenant does not exist.";
         $message_type = "error";
-    } else {
+    } 
+    //if it does:
+    else {
         $tenant_row = mysqli_fetch_assoc($tenant_result);
         $tenant_id = $tenant_row['tenant_id'];
 
         $get_unit = "SELECT unit_id, capacity FROM units WHERE unit_name = '$unit_name'";
         $unit_result = mysqli_query($conn, $get_unit);
 
+        //checks if the unit exists
+        //if it doesn't:
         if (mysqli_num_rows($unit_result) <= 0) {
             $message = "❌ Unit does not exist.";
             $message_type = "error";
@@ -322,6 +326,7 @@ if (isset($_SESSION['message'])) {
             display: flex;
             flex-direction: column;
             overflow-y: scroll;
+            margin-bottom: 5vh;
         }
 
         .add-unit {
@@ -527,7 +532,10 @@ if (isset($_SESSION['message'])) {
             </div>
             <br>
             <form action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>" method="post">
-                <div class="add-unit-content"><input type="text" name="unit-name" id="unit-name" placeholder="Unit Name" required></div>
+                <div class="add-unit-content">
+                    <label for="unit-name">Add New Unit</label>
+                    <br><br>
+                    <input type="text" name="unit-name" id="unit-name" placeholder="Unit Name" required></div>
                 <br>
                 <div class="add-unit-content"><input type="text" name="unit-capacity" id="unit-capacity" placeholder="Unit Capacity" required></div>
                 <br>
@@ -544,9 +552,13 @@ if (isset($_SESSION['message'])) {
             </div>
             <br>
             <form action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>" method="post">
-                <div class="assign-tenant-content"><input type="text" name="tenant-username" id="tenant-username" placeholder="Tenant Username" required></div>
+                <div class="assign-tenant-content">
+                    <label for="tenant-username">Assign a Tenant</label>
+                    <br><br>
+                    <input type="text" name="tenant-username" id="tenant-username" placeholder="Tenant Username" required></div>
                 <br>
-                <div class="assign-tenant-content"><input type="text" name="unit-name" id="unit-name" placeholder="Unit Name" required></div>
+                <div class="assign-tenant-content">
+                    <input type="text" name="unit-name" id="unit-name" placeholder="Unit Name" required></div>
                 <br>
                 <div class="assign-tenant-content"><input type="submit" value="Assign Tenant" id="assign-tenant-button" name="assign-tenant-button"></div>
                 <br>
