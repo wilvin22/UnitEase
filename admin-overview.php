@@ -137,7 +137,7 @@ if (isset($_POST['remove-tenant-button'])) {
     if (mysqli_num_rows($tenant_result) <= 0) {
         $message = "❌ Tenant does not exist.";
         $message_type = "error";
-    } 
+    }
     //if it does:
     else {
         $tenant_row = mysqli_fetch_assoc($tenant_result);
@@ -204,7 +204,6 @@ if (isset($_POST['edit-unit-button']) && !empty($_POST['select_unit'])) {
     }
 }
 
-
 if (isset($_POST['delete-button']) && !empty($_POST['select_unit'])) {
     $ids = implode(',', array_map('intval', $_POST['select_unit']));
     $delete_sql = "DELETE FROM units WHERE unit_id IN ($ids)";
@@ -236,7 +235,6 @@ if (isset($_SESSION['message'])) {
             padding: 0;
             background-color: #e4e4e6ff;
             overflow-y: hidden;
-
         }
 
         .main-container {
@@ -535,7 +533,8 @@ if (isset($_SESSION['message'])) {
                 <div class="add-unit-content">
                     <label for="unit-name">Add New Unit</label>
                     <br><br>
-                    <input type="text" name="unit-name" id="unit-name" placeholder="Unit Name" required></div>
+                    <input type="text" name="unit-name" id="unit-name" placeholder="Unit Name" required>
+                </div>
                 <br>
                 <div class="add-unit-content"><input type="text" name="unit-capacity" id="unit-capacity" placeholder="Unit Capacity" required></div>
                 <br>
@@ -555,10 +554,12 @@ if (isset($_SESSION['message'])) {
                 <div class="assign-tenant-content">
                     <label for="tenant-username">Assign a Tenant</label>
                     <br><br>
-                    <input type="text" name="tenant-username" id="tenant-username" placeholder="Tenant Username" required></div>
+                    <input type="text" name="tenant-username" id="tenant-username" placeholder="Tenant Username" required>
+                </div>
                 <br>
                 <div class="assign-tenant-content">
-                    <input type="text" name="unit-name" id="unit-name" placeholder="Unit Name" required></div>
+                    <input type="text" name="unit-name" id="unit-name" placeholder="Unit Name" required>
+                </div>
                 <br>
                 <div class="assign-tenant-content"><input type="submit" value="Assign Tenant" id="assign-tenant-button" name="assign-tenant-button"></div>
                 <br>
@@ -608,8 +609,6 @@ if (isset($_SESSION['message'])) {
             </form>
         </div>
 
-
-
         <div class="main-content" style="padding:20px;">
             <div class="cards item-1">
                 <h1><?php
@@ -620,7 +619,6 @@ if (isset($_SESSION['message'])) {
                 <br>
                 Total Units
             </div>
-
 
             <div class="cards item-2">
                 <h1>
@@ -659,7 +657,7 @@ if (isset($_SESSION['message'])) {
                 <br>
                 <form action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>" method="post" style="width: 100%; display:flex; flex-direction:column; align-items:start;">
                     <div style="width: 100%; display:flex; justify-content:start;">
-                        
+
                         <?php if (!empty($message)) : ?>
                             <span style="color: <?php echo ($message_type == 'success') ? 'green' : 'red'; ?>; margin-left:auto;"><?php echo $message ?></span>
 
@@ -750,7 +748,28 @@ if (isset($_SESSION['message'])) {
                         ?>
                     </div>
             </div>
+
+            <div class="cards item-5">
+                <div style="width: 100%; display:flex; justify-content:start;">
+                    <h1>Overview</h1>
+                </div>
+                <br>
+                <form action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>" method="post" style="width: 100%; display:flex; flex-direction:column; align-items:start;">
+                    <div style="width: 100%; display:flex; justify-content:start;">
+
+                        <?php if (!empty($message)) : ?>
+                            <span style="color: <?php echo ($message_type == 'success') ? 'green' : 'red'; ?>; margin-left:auto;"><?php echo $message ?></span>
+
+                        <?php endif; ?>
+
+                    </div>
+                    <br>
+
+            </div>
         </div>
+
+    </div>
+    </div>
     </div>
 
     <script>
