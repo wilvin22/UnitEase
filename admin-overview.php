@@ -1,8 +1,5 @@
 <!-- 
  MGA KULANG: 
-- kailangan malaman kung sino mga tenant na naka-occupy
-- edit button functionality
-- show total tenants
 - search bar (optional)
 
 -->
@@ -15,19 +12,24 @@ include 'database.php';
 $message = "";
 $message_type = "";
 
+//creating a unit
 if (isset($_POST['create-unit-button'])) {
     $unit_name = $_POST['unit-name'];
     $unit_capacity = $_POST['unit-capacity'];
     $unit_floor = $_POST['unit-floor'];
 
+    //this query selects the entered unit name within the same admin account
     $admin_id = $_SESSION['admin_id'];
     $check_sql = "SELECT * FROM units WHERE unit_name = '$unit_name' AND admin_id = '$admin_id'";
     $check_result = mysqli_query($conn, $check_sql);
 
+    //if it already exists:
     if (mysqli_num_rows($check_result) > 0) {
         $message = "❌ A unit with this name already exists.";
         $message_type = "error";
-    } else {
+    }
+    //if it doesn't:
+    else {
         $sql = "INSERT INTO units (unit_id, unit_name, status, capacity, unit_floor, admin_id) 
                 VALUES (NULL, '$unit_name', 'Available', '$unit_capacity', '$unit_floor', '$admin_id')";
 
@@ -41,11 +43,95 @@ if (isset($_POST['create-unit-button'])) {
     }
 }
 
+//assigning a tenant
 if (isset($_POST['assign-tenant-button'])) {
     $unit_name = $_POST['unit-name'];
     $tenant_username = $_POST['tenant-username'];
 
+    //checks if the entered username of the tenant from the user exists:
     $get_tenant = "SELECT tenant_id FROM tenant_accounts WHERE username = '$tenant_username'";
+    $tenant_result = mysqli_query($conn, $get_tenant);
+
+    //if it doesn't:
+    if (mysqli_num_rows($tenant_result) <= 0) {
+        $message = "❌ Tenant does not exist.";
+        $message_type = "error";
+    }
+    //if it does:
+    else {
+        $tenant_row = mysqli_fetch_assoc($tenant_result);
+        $tenant_id = $tenant_row['tenant_id'];
+
+        //checks if the entered unit name from the user exists:
+        $get_unit_data = "SELECT unit_id, unit_name, capacity FROM units WHERE unit_name = '$unit_name'";
+        $unit_result = mysqli_query($conn, $get_unit_data);
+
+        //if it doesn't:
+        if (mysqli_num_rows($unit_result) <= 0) {
+            $message = "❌ Unit does not exist.";
+            $message_type = "error";
+        }
+        //if it does:
+        //at this point, both the tenant and the unit exists
+        else {
+            $unit_row = mysqli_fetch_assoc($unit_result);
+            $unit_id = $unit_row['unit_id'];
+            $capacity = $unit_row['capacity'];
+
+            //checks the occupancy of the unit from the table `tenant_units`
+            $count_query = "SELECT COUNT(*) AS occupancy FROM tenant_units WHERE unit_id = '$unit_id'";
+            $count_result = mysqli_query($conn, $count_query);
+            $count_row = mysqli_fetch_assoc($count_result);
+            $current_occupancy = $count_row['occupancy'];
+
+            //checks if the tenant is already assigned to the same unit
+            $check_tenant = "SELECT * FROM tenant_units WHERE tenant_id = '$tenant_id'";
+            $check_tenant_result = mysqli_query($conn, $check_tenant);
+            $check_tenant_row = mysqli_num_rows($check_tenant_result);
+
+            //if it does:
+            if ($check_tenant_row > 0) {
+
+                $sql = "SELECT unit_id FROM tenant_units WHERE tenant_id = '$tenant_id'";
+                $result = mysqli_query($conn, $sql);
+                $row = mysqli_fetch_assoc($result);
+                $existing_unit_id = $row['unit_id'];
+
+                $stmt = "SELECT unit_name FROM units WHERE unit_id = '$existing_unit_id'";
+                $stmt_result = mysqli_query($conn, $stmt);
+                $stmt_row = mysqli_fetch_assoc($stmt_result);
+                $unit_name = $stmt_row['unit_name'];
+
+                $message = "❌ Tenant is already assigned to unit " . $unit_name;
+                $message_type = "error";
+            }
+
+            //if the unit is not full, it will insert the tenant
+            else if ($current_occupancy < $capacity) {
+                $sql = "INSERT INTO tenant_units (unit_id, tenant_id) VALUES ('$unit_id', '$tenant_id')";
+                if (!mysqli_query($conn, $sql)) {
+                    $message = "❌ Error assigning tenant.";
+                    $message_type = "error";
+                } else {
+                    $message = "✅ Tenant assigned successfully.";
+                    $message_type = "success";
+                }
+            }
+            //if it is:
+            else {
+                $message = "❌ Unit is already full.";
+                $message_type = "error";
+            }
+        }
+    }
+}
+
+
+if (isset($_POST['remove-tenant-button'])) {
+    $unit_name = $_POST['unit-name'];
+    $tenant_fullname = $_POST['tenant-fullname'];
+
+    $get_tenant = "SELECT tenant_id FROM tenant_accounts WHERE full_name = '$tenant_fullname'";
     $tenant_result = mysqli_query($conn, $get_tenant);
 
     if (mysqli_num_rows($tenant_result) <= 0) {
@@ -55,8 +141,8 @@ if (isset($_POST['assign-tenant-button'])) {
         $tenant_row = mysqli_fetch_assoc($tenant_result);
         $tenant_id = $tenant_row['tenant_id'];
 
-        $get_unit_data = "SELECT unit_id, capacity FROM units WHERE unit_name = '$unit_name'";
-        $unit_result = mysqli_query($conn, $get_unit_data);
+        $get_unit = "SELECT unit_id, capacity FROM units WHERE unit_name = '$unit_name'";
+        $unit_result = mysqli_query($conn, $get_unit);
 
         if (mysqli_num_rows($unit_result) <= 0) {
             $message = "❌ Unit does not exist.";
@@ -64,47 +150,53 @@ if (isset($_POST['assign-tenant-button'])) {
         } else {
             $unit_row = mysqli_fetch_assoc($unit_result);
             $unit_id = $unit_row['unit_id'];
-            $capacity = $unit_row['capacity'];
 
-            $count_query = "SELECT COUNT(*) AS occupancy FROM tenant_units WHERE unit_id = '$unit_id'";
-            $count_result = mysqli_query($conn, $count_query);
-            $count_row = mysqli_fetch_assoc($count_result);
-            $current_occupancy = $count_row['occupancy'];
-
-            $check_assignment = "SELECT * FROM tenant_units WHERE unit_id = '$unit_id' AND tenant_id = '$tenant_id'";
-            $assignment_result = mysqli_query($conn, $check_assignment);
-
-            if (mysqli_num_rows($assignment_result) > 0) {
-                $message = "❌ Tenant is already assigned to this unit.";
-                $message_type = "error";
-            }
-
-            if ($current_occupancy < $capacity) {
-                $sql = "INSERT INTO tenant_units (unit_id, tenant_id) VALUES ('$unit_id', '$tenant_id')";
-                if (!mysqli_query($conn, $sql) && !mysqli_query($conn, $stmt)) {
-                    $message = "❌ Error assigning tenant.";
-                    $message_type = "error";
-                } else {
-                    $message = "✅ Tenant assigned successfully.";
-                    $message_type = "success";
-                }
+            $sql = "DELETE FROM tenant_units WHERE `tenant_id` = '$tenant_id' AND `unit_id` = '$unit_id'";
+            if (mysqli_query($conn, $sql)) {
+                $message = "✅ Tenant has been removed successfully.";
+                $message_type = "success";
             } else {
-                $message = "❌ Unit is already full.";
+                $message = "❌ Could not remove tenant.";
                 $message_type = "error";
             }
         }
     }
 }
 
-if(isset($_POST['edit-unit-button'])){
-    if(empty($_POST['select_unit'])){
-        $message = "Please select a unit to edit.";
-    }
-    else if (($_POST['select_unit']) > 1){
-        $message = "Select only one(1) unit to edit.";
-    }
-    else{
+if (isset($_POST['edit-unit-button']) && !empty($_POST['select_unit'])) {
+    $unit_id = $_POST['select_unit'][0];
 
+    $edit_name = trim($_POST['edit-unit-name']);
+    $edit_capacity = trim($_POST['edit-unit-capacity']);
+    $edit_floor = trim($_POST['edit-unit-floor']);
+
+    $updates = [];
+    if (!empty($edit_name)) $updates[] = "unit_name = '$edit_name'";
+    if (!empty($edit_capacity)) $updates[] = "capacity = '$edit_capacity'";
+    if (!empty($edit_floor)) $updates[] = "unit_floor = '$edit_floor'";
+
+    if (!empty($updates)) {
+        $count_query = "SELECT COUNT(*) AS occupancy FROM tenant_units WHERE unit_id = '$unit_id'";
+        $count_result = mysqli_query($conn, $count_query);
+        $count_row = mysqli_fetch_assoc($count_result);
+        $current_occupancy = $count_row['occupancy'];
+
+        if (!empty($edit_capacity) && $edit_capacity < $current_occupancy) {
+            $message = "❌ Capacity could not be smaller than current occupancy.";
+            $message_type = "error";
+        } else {
+            $update_sql = "UPDATE units SET " . implode(", ", $updates) . " WHERE unit_id = '$unit_id'";
+            if (mysqli_query($conn, $update_sql)) {
+                $message = "✅ Unit updated successfully!";
+                $message_type = "success";
+            } else {
+                $message = "❌ Failed to update unit.";
+                $message_type = "error";
+            }
+        }
+    } else {
+        $message = "⚠️ No changes were made.";
+        $message_type = "error";
     }
 }
 
@@ -254,7 +346,7 @@ if (isset($_SESSION['message'])) {
             height: 40px;
             width: 100%;
             font-size: 15px;
-            border: 1px solid black;
+            outline: none;
         }
 
         #add-unit-close {
@@ -290,7 +382,7 @@ if (isset($_SESSION['message'])) {
             height: 40px;
             width: 100%;
             font-size: 15px;
-            border: 1px solid black;
+            outline: none;
         }
 
         #assign-tenant-close {
@@ -300,6 +392,42 @@ if (isset($_SESSION['message'])) {
         }
 
         #assign-tenant-close:hover {
+            background-color: #d4d4d4ff;
+            cursor: pointer;
+        }
+
+        .remove-tenant {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            padding: 20px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+            border-radius: 8px;
+            min-width: 300px;
+            text-align: center;
+        }
+
+        .remove-tenant.active {
+            display: block;
+        }
+
+        .remove-tenant-content input {
+            height: 40px;
+            width: 100%;
+            font-size: 15px;
+            outline: none;
+        }
+
+        #remove-tenant-close {
+            display: flex;
+            align-items: center;
+            width: 40%;
+        }
+
+        #remove-tenant-close:hover {
             background-color: #d4d4d4ff;
             cursor: pointer;
         }
@@ -326,7 +454,7 @@ if (isset($_SESSION['message'])) {
             height: 40px;
             width: 100%;
             font-size: 15px;
-            border: 1px solid black;
+            outline: none;
         }
 
         #edit-unit-close {
@@ -343,11 +471,19 @@ if (isset($_SESSION['message'])) {
         tr {
             height: 30px;
         }
+
         .menu-icon,
         .close-icon {
             width: 30px;
             height: 30px;
             margin: 10px;
+        }
+
+        #edit-unit-status {
+            width: 100%;
+            height: 40px;
+            text-align: center;
+            outline: none;
         }
     </style>
     <meta charset="UTF-8">
@@ -417,6 +553,22 @@ if (isset($_SESSION['message'])) {
             </form>
         </div>
 
+        <div class="remove-tenant">
+            <div onclick=removeTenant() id="remove-tenant-close">
+                <img src="images/close-blue.png" alt="close" id="close-icon" style="width:30px; height:30px; margin:10px;">
+                Close
+            </div>
+            <br>
+            <form action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>" method="post">
+                <div class="remove-tenant-content"><input type="text" name="tenant-fullname" id="tenant-fullname" placeholder="Tenant Full Name" required></div>
+                <br>
+                <div class="remove-tenant-content"><input type="text" name="unit-name" id="unit-name" placeholder="Unit Name" required></div>
+                <br>
+                <div class="remove-tenant-content"><input type="submit" value="Remove Tenant" id="remove-tenant-button" name="remove-tenant-button"></div>
+                <br>
+            </form>
+        </div>
+
         <div class="edit-unit">
             <div onclick=editUnit() id="edit-unit-close">
                 <img src="images/close-blue.png" alt="close" id="close-icon" style="width:30px; height:30px; margin:10px;">
@@ -424,17 +576,22 @@ if (isset($_SESSION['message'])) {
             </div>
             <br>
             <form action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>" method="post">
-                <div class="edit-unit-content"><input type="text" name="edit-unit-name" id="edit-unit-name" placeholder="Edit Unit Name (Leave empty to ignore)"></div>
+                <input type="hidden" name="select_unit[]" id="edit-unit-array">
+                <div class="edit-unit-content">
+                    <input type="text" name="edit-unit-name" id="edit-unit-name" placeholder="Edit Unit Name (Leave empty to ignore)">
+                </div>
                 <br>
-                <div class="edit-unit-content"><input type="text" name="edit-unit-capacity" id="edit-unit-capacity" placeholder="Edit Unit Capacity (Leave empty to ignore)"></div>
+                <div class="edit-unit-content">
+                    <input type="text" name="edit-unit-capacity" id="edit-unit-capacity" placeholder="Edit Unit Capacity (Leave empty to ignore)">
+                </div>
                 <br>
-                <div class="edit-unit-content"><input type="text" name="edit-unit-floor" id="edit-unit-floor" placeholder="Edit Unit Floor (Leave empty to ignore)"></div>
+                <div class="edit-unit-content">
+                    <input type="text" name="edit-unit-floor" id="edit-unit-floor" placeholder="Edit Unit Floor (Leave empty to ignore)">
+                </div>
                 <br>
-                <div class="edit-unit-content"><input type="text" name="edit-unit-status" id="edit-unit-status" placeholder="Edit Unit Status (Leave empty to ignore)"></div>
-                <br>
-                <div class="edit-unit-content"><input type="text" name="edit-unit-occupancy" id="edit-unit-occupancy" placeholder="Edit Unit Occupancy (Leave empty to ignore)"></div>
-                <br>
-                <div class="edit-unit-content"><input type="submit" value="Edit Unit" id="edit-unit-button" name="edit-unit-button"></div>
+                <div class="edit-unit-content">
+                    <input type="submit" value="Edit Unit" id="edit-unit-button" name="edit-unit-button">
+                </div>
                 <br>
             </form>
         </div>
@@ -490,8 +647,7 @@ if (isset($_SESSION['message'])) {
                 <br>
                 <form action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>" method="post" style="width: 100%; display:flex; flex-direction:column; align-items:start;">
                     <div style="width: 100%; display:flex; justify-content:start;">
-                        <input type="text" name="search" id="search" placeholder="Search Units" class="form-content" style="width: 300px; height: 35px; border: 1px solid #ccc; border-radius: 3px; margin-bottom: 10px; padding-left:20px; outline:none;">
-                        <input type="submit" name="search-button" value="Search" id="button" style="width: 100px; height: 35px; margin-left: 10px; border:none; background-color:#62929E; color:white; border-radius:3px; cursor:pointer;">
+                        
                         <?php if (!empty($message)) : ?>
                             <span style="color: <?php echo ($message_type == 'success') ? 'green' : 'red'; ?>; margin-left:auto;"><?php echo $message ?></span>
 
@@ -502,7 +658,10 @@ if (isset($_SESSION['message'])) {
                     <div style="width: 100%; display:flex; justify-content:start; padding:20px; box-sizing:border-box;">
                         <input onclick=addUnit() type="button" name="add-unit-button" value="Add New Unit" id="add-button" style="width: 150px; height: 35px; margin-bottom:10px; margin-right: 20px; border:none; background-color:#27AE60; color:white; border-radius:3px; cursor:pointer;">
                         <input onclick=assignTenant() type="button" name="assign-tenant" value="Assign a Tenant" id="assign-tenant" style="width: 150px; height: 35px; margin-bottom:10px; margin-right: 20px; border:none; background-color:#27AE60; color:white; border-radius:3px; cursor:pointer;">
+                        <input onclick=removeTenant() type="button" name="remove-tenant" value="Remove a Tenant" id="remove-tenant" style="width: 150px; height: 35px; margin-bottom:10px; margin-right: 20px; border:none; background-color:#E74C3C; color:white; border-radius:3px; cursor:pointer;">
                         <input onclick=editUnit() type="button" name="edit-button" value="Edit Selected Unit" id="edit-button" style="width: 150px; height: 35px; margin-bottom:10px; margin-right: 20px; border:none; background-color:#F39C12; color:white; border-radius:3px; cursor:pointer;">
+                        <input onclick=sendAnnounncement() type="button" name="send-announcement" value="Send Announcement" id="send-announcement" style="width: 150px; height: 35px; margin-bottom:10px; margin-right: 20px; border:none; background-color:#27AE60; color:white; border-radius:3px; cursor:pointer;">
+                        <input onclick=viewRequests() type="button" name="view-requests" value="View Requests" id="view-requests" style="width: 150px; height: 35px; margin-bottom:10px; margin-right: 20px; border:none; background-color:#27AE60; color:white; border-radius:3px; cursor:pointer;">
                         <input type="submit" name="delete-button" value="Delete Selected Units" id="delete-button" style="width: 200px; height: 35px; margin-bottom:10px; border:none; background-color:#E74C3C; color:white; border-radius:3px; cursor:pointer;">
                         <input type="submit" name="refresh-button" value="Refresh" id="refresh-button" style="width: 100px; height: 35px; margin-left:auto; border:none; background-color:#62929E; color:white; border-radius:3px; cursor:pointer;">
                     </div>
@@ -558,8 +717,7 @@ if (isset($_SESSION['message'])) {
 
                                 if ($status == 'Full') {
                                     $status_bg = '#f99';
-                                } 
-                                else {
+                                } else {
                                     $status_bg = '#A1D998';
                                 }
 
@@ -602,26 +760,30 @@ if (isset($_SESSION['message'])) {
             document.querySelector('.assign-tenant').classList.toggle('active');
         }
 
+        function removeTenant() {
+            document.querySelector('.remove-tenant').classList.toggle('active');
+        }
+
         function editUnit() {
             var checkboxes = document.getElementsByName("select_unit[]");
-            var count = 0;  
+            var selected = null;
+            var count = 0;
 
             for (var i = 0; i < checkboxes.length; i++) {
                 if (checkboxes[i].checked) {
-                    count++;  
+                    selected = checkboxes[i].value;
+                    count++;
                 }
             }
-
             if (count == 0) {
                 alert("Please select a unit to edit.");
             } else if (count > 1) {
-                alert("Please select only one unit to edit.");
+                alert("Please select only one (1) unit to edit.");
             } else {
-                document.querySelector('.edit-unit').classList.add('active');
+                document.getElementById('edit-unit-array').value = selected;
+                document.querySelector('.edit-unit').classList.toggle('active');
             }
         }
-
-
     </script>
 </body>
 
