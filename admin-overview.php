@@ -324,7 +324,6 @@ if (isset($_SESSION['message'])) {
             display: flex;
             flex-direction: column;
             overflow-y: scroll;
-            overflow-x: scroll;
             margin-bottom: 5vh;
         }
 
@@ -503,31 +502,67 @@ if (isset($_SESSION['message'])) {
             padding: 10px;
             box-sizing: border-box;
             color:white;
-            font-family: Inter-Regular;
+            font-family: Inter-Bold;
             cursor: pointer;
-            background-color: #e2e2e2ff;
-            color: #222222ff;
+            background-color: #ebebebff;
+            color: #62929E;
             font-size:16px;
         }
-        #send-announcement, #view-requests{
-            background-color: var(--LIGHT);
-            color: #383838ff;
-        }
-        #send-announcement:hover{
-            background-color: #9c9c9cff;
-        }
-        #view-requests:hover{
-            background-color: #9c9c9cff;
+        .overview-buttons:hover{
+            background-color: #d4d4d4ff;
         }
         #remove-tenant, #delete-button{
-            background-color: #fc8d8fff;
-            color: #222222ff;
+            background-color: #ffa8aaff;
+            color: #464646ff;
         }
-
+        #create-unit-button{
+            color:#62929E;
+            font-family: Inter-Bold, Arial;
+            border: none;
+            cursor: pointer;
+        }
+        #create-unit-button:hover{
+            background-color: #d4d4d4ff;
+        }
+        #assign-tenant-button{
+            color:#62929E;
+            font-family: Inter-Bold, Arial;
+            border: none;
+            cursor: pointer;
+        }
+        #assign-tenant-button:hover{
+            background-color: #d4d4d4ff;
+        }
+        #edit-unit-button{
+            color:#62929E;
+            font-family: Inter-Bold, Arial;
+            border: none;
+            cursor: pointer;
+        }
+        #edit-unit-button:hover{
+            background-color: #d4d4d4ff;
+        }
+        #remove-tenant{
+            font-family: Inter-Bold, Arial;
+            border: none;
+            cursor: pointer;
+        }
+        #remove-tenant:hover{
+            background-color: #ee8385ff;
+        }
+        #delete-button{
+            font-family: Inter-Bold, Arial;
+            border: none;
+            cursor: pointer;
+        }
+        #delete-button:hover{
+            background-color: #ee8385ff;
+        }
         .table-container{
             width: 100%;   
             overflow-x: scroll;
             min-width: 1195px;
+            height: 100%;
         }
     </style>
     <meta charset="UTF-8">
@@ -691,7 +726,7 @@ if (isset($_SESSION['message'])) {
                 <br>
                 Total Tenants
             </div>
-            <div class="cards item-4">
+            <div class="cards item-4" style="height: 70%;">
                 <div style="width: 100%; display:flex; justify-content:start;">
                     <h1>Overview</h1>
                 </div>
@@ -710,11 +745,11 @@ if (isset($_SESSION['message'])) {
                         <input class="overview-buttons" onclick=addUnit() type="button" name="add-unit-button" value="Add New Unit" id="add-button">
                         <input class="overview-buttons" onclick=assignTenant() type="button" name="assign-tenant" value="Assign a Tenant" id="assign-tenant">
                         <input class="overview-buttons" onclick=editUnit() type="button" name="edit-button" value="Edit Selected Unit" id="edit-button">
-                        <input class="overview-buttons" onclick=removeTenant() type="button" name="remove-tenant" value="Remove a Tenant" id="remove-tenant">
-                        <input class="overview-buttons" type="submit" name="delete-button" value="Delete Selected Units" id="delete-button">
                         <input class="overview-buttons" onclick=sendAnnounncement() type="button" name="send-announcement" value="Send Announcement" id="send-announcement">
                         <input class="overview-buttons" onclick=viewRequests() type="button" name="view-requests" value="View Requests" id="view-requests">
-                        <input class="overview-buttons" type="submit" name="refresh-button" value="Refresh" id="refresh-button">
+                        <input class="overview-buttons" type="submit" name="refresh-button" value="Refresh Table" id="refresh-button">
+                        <input class="overview-buttons" onclick=removeTenant() type="button" name="remove-tenant" value="Remove a Tenant" id="remove-tenant">
+                        <input class="overview-buttons" type="submit" name="delete-button" value="Delete Selected Units" id="delete-button">
                     </div>
                     <br>
                     <div class="table-container" style="height: 100%; width:100%; overflow-y:auto; justify-content:center; align-items:center;">
@@ -792,18 +827,15 @@ if (isset($_SESSION['message'])) {
                     </div>
             </div>
 
-            <div class="cards item-5">
+            <div class="cards item-5" style="border: 1px solid black; width: 100%; height: 100%;">
                 <div style="width: 100%; display:flex; justify-content:start;">
-                    <h1>Overview</h1>
+                    <h1>Profile</h1>
                 </div>
                 <br>
                 <form action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>" method="post" style="width: 100%; display:flex; flex-direction:column; align-items:start;">
-                    <div style="width: 100%; display:flex; justify-content:start;">
-
-                        <?php if (!empty($message)) : ?>
-                            <span style="color: <?php echo ($message_type == 'success') ? 'green' : 'red'; ?>; margin-left:auto;"><?php echo $message ?>
-                        </span>
-                        <?php endif; ?>
+                    <div style="width: 100%; display:flex; justify-content:start; border: 1px solid black;">
+                        
+                        
                     </div>
                     <br>
 
