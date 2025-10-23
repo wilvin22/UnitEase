@@ -207,13 +207,14 @@ if (isset($_POST['edit-unit-button']) && !empty($_POST['select_unit'])) {
 if (isset($_POST['delete-button']) && !empty($_POST['select_unit'])) {
     $ids = implode(',', array_map('intval', $_POST['select_unit']));
     $delete_sql = "DELETE FROM units WHERE unit_id IN ($ids)";
-    try {
-        mysqli_query($conn, $delete_sql);
-    } catch (mysqli_sql_exception) {
-        echo "Could not delete units.";
+    if(mysqli_query($conn, $delete_sql)){
+        $message = "✅ Unit(s) deleted successfully";
+        $message_type = "success";
     }
-    header("Location: " . $_SERVER['PHP_SELF']);
-    exit();
+    else{
+        $message = "❌ Could not delete unit(s).";
+        $message_type = "error";
+    }
 }
 
 ?>
@@ -665,6 +666,9 @@ if (isset($_SESSION['message'])) {
             </div>
             <br>
             <form action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>" method="post">
+                <label>Edit Unit</label>
+                <br>
+                <br>
                 <input type="hidden" name="select_unit[]" id="edit-unit-array">
                 <div class="edit-unit-content">
                     <input type="text" name="edit-unit-name" id="edit-unit-name" placeholder="Edit Unit Name (Leave empty to ignore)">
