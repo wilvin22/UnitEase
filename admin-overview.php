@@ -489,6 +489,113 @@ if (isset($_SESSION['message'])) {
             text-align: center;
             outline: none;
         }
+
+        .send-announcement{
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            padding: 20px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+            border-radius: 8px;
+            min-width: 300px;
+            text-align: center;
+        }
+
+        .send-announcement.active {
+            display: block;
+        }
+
+        .send-announcement-content input {
+            height: 40px;
+            width: 100%;
+            font-size: 15px;
+            outline: none;
+        }
+
+        #send-announcement-close {
+            display: flex;
+            align-items: center;
+            width: 40%;
+        }
+
+        #send-announcement-close:hover {
+            background-color: #d4d4d4ff;
+            cursor: pointer;
+        }
+        .view-requests {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            padding: 20px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+            border-radius: 8px;
+            min-width: 300px;
+            text-align: center;
+        }
+
+        .view-requests.active {
+            display: block;
+        }
+
+        .view-requests-content input {
+            height: 40px;
+            width: 100%;
+            font-size: 15px;
+            outline: none;
+        }
+
+        #view-requests-close {
+            display: flex;
+            align-items: center;
+            width: 40%;
+        }
+
+        #view-requests-close:hover {
+            background-color: #d4d4d4ff;
+            cursor: pointer;
+        }
+
+        .edit-profile {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            padding: 20px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+            border-radius: 8px;
+            min-width: 300px;
+            text-align: center;
+        }
+
+        .edit-profile.active {
+            display: block;
+        }
+
+        .edit-profile-content input {
+            height: 40px;
+            width: 100%;
+            font-size: 15px;
+            outline: none;
+        }
+
+        #edit-profile-close {
+            display: flex;
+            align-items: center;
+            width: 40%;
+        }
+
+        #edit-profile-close:hover {
+            background-color: #d4d4d4ff;
+            cursor: pointer;
+        }
         .overview-buttons-container{
             width: 100%;   
             display:flex;
@@ -565,6 +672,15 @@ if (isset($_SESSION['message'])) {
             min-width: 1195px;
             height: 100%;
         }
+        #top-bar{
+            background-color: #393D3F; 
+            width: 100%; 
+            display: flex; 
+            justify-content: space-between;
+        }
+        #message-content{
+            height: 100px;
+        }
     </style>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -573,24 +689,26 @@ if (isset($_SESSION['message'])) {
 </head>
 
 <body>
-    <div style="background-color: #393D3F;">
+    <div id = "top-bar">
         <img onclick=Sidebar() src="images/hamburger-blue.png" alt="menu" class="menu-icon">
+        <span><h3 style="color: white; height: 100%; display: flex; align-items: center; margin-right: 30px;">
+        <?php
+        $admin_id = $_SESSION['admin_id'];
+        $sql = "SELECT username FROM admin_accounts WHERE admin_id = '$admin_id'";
+        $result = mysqli_query($conn, $sql);
+        $row = mysqli_fetch_assoc($result);
+        
+        echo"ADMIN: " . $row['username'];
+        ?>
+        </h3></span>
     </div>
     <div class="main-container">
         <div class="dashboard">
-            <a href="admin-overview.php">
-                <div class="dashboard-item 1">
-                    <img src="images/overview-blue.png" alt="menu" class="menu-icon">
-                    Overview
-                </div>
-            </a>
-
-            <a href="admin-profile.php">
+            
                 <div class="dashboard-item 2">
                     <img src="images/user-blue.png" alt="menu" class="menu-icon">
-                    Profile
+                    Edit Profile
                 </div>
-            </a>
 
             <a href="login.php">
                 <div class="dashboard-item 7">
@@ -689,6 +807,43 @@ if (isset($_SESSION['message'])) {
             </form>
         </div>
 
+        <div class="send-announcement">
+            <div onclick=sendAnnouncement() id="send-announcement-close">
+                <img src="images/close-blue.png" alt="close" id="close-icon" style="width:30px; height:30px; margin:10px;">
+                Close
+            </div>
+            <br>
+            <form action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>" method="post">
+                <div class="send-announcement-content"><input type="text" name="message-subject" id="message-subject" placeholder="Subject"></div>
+                <br>
+                <div class="send-announcement-content"><input type="text" name="message-content" id="message-content" placeholder="Message..." required></div>
+                <br>
+                <div class="send-announcement-content"><input type="submit" value="Send to selected units only" id="send-announcement-button" name="send-announcement-button"></div>
+                <br>
+
+                <div class="send-announcement-content"><input type="submit" value="Send to all units" id="send-all-announcement-button" name="send-all-announcement-button"></div>
+                <br>
+            </form>
+        </div>
+
+        <div class="view-requests">
+            <div onclick=viewRequests() id="view-requests-close">
+                <img src="images/close-blue.png" alt="close" id="close-icon" style="width:30px; height:30px; margin:10px;">
+                Close
+            </div>
+            <br>
+            <div>No requests at the moment.</div>
+        </div>
+
+        <div class="edit-profile">
+            <div onclick=editProfile() id="edit-profile-close">
+                <img src="images/close-blue.png" alt="close" id="close-icon" style="width:30px; height:30px; margin:10px;">
+                Close
+            </div>
+            <br>
+            <div class="edit-profile-content">edit profile</div>
+        </div>
+
         <div class="main-content" style="padding:20px;">
             <div class="cards item-1">
                 <h1><?php
@@ -749,9 +904,9 @@ if (isset($_SESSION['message'])) {
                         <input class="overview-buttons" onclick=addUnit() type="button" name="add-unit-button" value="Add New Unit" id="add-button">
                         <input class="overview-buttons" onclick=assignTenant() type="button" name="assign-tenant" value="Assign a Tenant" id="assign-tenant">
                         <input class="overview-buttons" onclick=editUnit() type="button" name="edit-button" value="Edit Selected Unit" id="edit-button">
-                        <input class="overview-buttons" onclick=sendAnnounncement() type="button" name="send-announcement" value="Send Announcement" id="send-announcement">
+                        <input class="overview-buttons" onclick=sendAnnouncement() type="button" name="send-announcement" value="Send Announcement" id="send-announcement">
                         <input class="overview-buttons" onclick=viewRequests() type="button" name="view-requests" value="View Requests" id="view-requests">
-                        <input class="overview-buttons" type="submit" name="refresh-button" value="Refresh Table" id="refresh-button">
+                        <input class="overview-buttons" type="submit" name="refresh-button" value="Refresh" id="refresh-button">
                         <input class="overview-buttons" onclick=removeTenant() type="button" name="remove-tenant" value="Remove a Tenant" id="remove-tenant">
                         <input class="overview-buttons" type="submit" name="delete-button" value="Delete Selected Units" id="delete-button">
                     </div>
@@ -836,6 +991,8 @@ if (isset($_SESSION['message'])) {
                     <h1>Profile</h1>
                 </div>
                 <br>
+                <div class ="profile-conatiners left"></div>
+                <div class ="profile-conatiners right"></div>
                 <form action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>" method="post" style="width: 100%; display:flex; flex-direction:column; align-items:start;">
                     <div style="width: 100%; display:flex; justify-content:start; border: 1px solid black;">
                         
@@ -893,6 +1050,16 @@ if (isset($_SESSION['message'])) {
                 document.querySelector('.edit-unit').classList.toggle('active');
             }
         }
+        function sendAnnouncement() {
+            document.querySelector('.send-announcement').classList.toggle('active');
+        }
+        function viewRequests() {
+            document.querySelector('.view-requests').classList.toggle('active');
+        }
+        function editProfile() {
+            document.querySelector('.edit-profile').classList.toggle('active');
+        }
+        
     </script>
 </body>
 
