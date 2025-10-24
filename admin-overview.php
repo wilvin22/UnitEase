@@ -151,9 +151,11 @@ if (isset($_POST['remove-tenant-button'])) {
         if (mysqli_num_rows($unit_result) <= 0) {
             $message = "❌ Unit does not exist.";
             $message_type = "error";
-        } else {
+        }
+        else {
             $unit_row = mysqli_fetch_assoc($unit_result);
             $unit_id = $unit_row['unit_id'];
+            
 
             $sql = "DELETE FROM tenant_units WHERE `tenant_id` = '$tenant_id' AND `unit_id` = '$unit_id'";
             if (mysqli_query($conn, $sql)) {
@@ -244,32 +246,9 @@ if (isset($_SESSION['message'])) {
             width: 100%;
         }
 
-        .dashboard {
-            height: 100vh;
-            width: 300px;
-            background-color: #fdfdff3f;
-            display: none;
-            position: absolute;
-            backdrop-filter: blur(5px);
-            box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
-            z-index: 10;
-        }
-
-        .dashboard-item {
-            padding: 15px;
-            display: flex;
-            align-items: center;
-            font-size: 18px;
-            color: #62929E;
-            cursor: pointer;
-        }
-
-        .dashboard-item:hover {
-            background-color: #f1f1f1ff;
-        }
-
         a {
             text-decoration: none;
+            color: white;
         }
 
         .menu-icon:hover {
@@ -310,8 +289,9 @@ if (isset($_SESSION['message'])) {
 
         .item-1,
         .item-2,
-        .item-3 {
-            width: max(400px, 30%);
+        .item-3,
+        .item-4 {
+            width: max(250px, 20%);
             height: 200px;
             display: flex;
             justify-content: center;
@@ -319,7 +299,7 @@ if (isset($_SESSION['message'])) {
             flex-direction: column;
         }
 
-        .item-4 {
+        .item-5 {
             width: 100%;
             height: auto;
             display: flex;
@@ -690,7 +670,12 @@ if (isset($_SESSION['message'])) {
 
 <body>
     <div id = "top-bar">
-        <img onclick=Sidebar() src="images/hamburger-blue.png" alt="menu" class="menu-icon">
+        
+     <a href="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>" id="unitease">
+        <span style="color: #62929E">U</span>nitEase
+        <img src="images/logo-blue.png" alt="logo blue" style="width: min(30px, 5vw);" >
+    </a>
+                
         <span><h3 style="color: white; height: 100%; display: flex; align-items: center; margin-right: 30px;">
         <?php
         $admin_id = $_SESSION['admin_id'];
@@ -703,20 +688,7 @@ if (isset($_SESSION['message'])) {
         </h3></span>
     </div>
     <div class="main-container">
-        <div class="dashboard">
-            
-                <div class="dashboard-item 2">
-                    <img src="images/user-blue.png" alt="menu" class="menu-icon">
-                    Edit Profile
-                </div>
-
-            <a href="login.php">
-                <div class="dashboard-item 7">
-                    <img src="images/logout-blue.png" alt="menu" class="menu-icon">
-                    Log-out
-                </div>
-            </a>
-        </div>
+       
 
         <div class="add-unit">
             <div onclick=addUnit() id="add-unit-close">
@@ -866,7 +838,32 @@ if (isset($_SESSION['message'])) {
                 Available Units
 
             </div>
+
             <div class="cards item-3">
+                <h1>
+                    <?php
+                    $sql = "SELECT SUM(capacity) AS total_capacity FROM units WHERE status = 'Available'";
+                    $result = mysqli_query($conn, $sql);
+                    $row = mysqli_fetch_assoc($result);
+                    $total_capacity = (int) ($row['total_capacity'] ?? 0);
+
+                    $admin_id = $_SESSION['admin_id'];
+                    $stmt = "SELECT COUNT(DISTINCT tu.tenant_id) AS tenant_count
+                            FROM tenant_units tu
+                            JOIN units u ON tu.unit_id = u.unit_id
+                            WHERE u.admin_id = '$admin_id' AND status = 'Available'";
+
+                    $count_result = mysqli_query($conn, $stmt);
+                    $count_row = mysqli_fetch_assoc($count_result);
+                    $total_tenants = (int) ($count_row['tenant_count']);
+                    echo $total_capacity - $total_tenants;
+                    ?></h1>
+                <br>
+                Available Slots
+
+            </div>
+
+            <div class="cards item-4">
                 <h1>
                     <?php
                     $admin_id = $_SESSION['admin_id'];
@@ -885,7 +882,7 @@ if (isset($_SESSION['message'])) {
                 <br>
                 Total Tenants
             </div>
-            <div class="cards item-4" style="height: 70%;">
+            <div class="cards item-5" style="height: 70%;">
                 <div style="width: 100%; display:flex; justify-content:start;">
                     <h1>Overview</h1>
                 </div>
@@ -984,23 +981,7 @@ if (isset($_SESSION['message'])) {
                         }
                         ?>
                     </div>
-            </div>
-
-            <div class="cards item-5" style="border: 1px solid black; width: 100%; height: 100%;">
-                <div style="width: 100%; display:flex; justify-content:start;">
-                    <h1>Profile</h1>
-                </div>
-                <br>
-                <div class ="profile-conatiners left"></div>
-                <div class ="profile-conatiners right"></div>
-                <form action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>" method="post" style="width: 100%; display:flex; flex-direction:column; align-items:start;">
-                    <div style="width: 100%; display:flex; justify-content:start; border: 1px solid black;">
-                        
-                        
-                    </div>
-                    <br>
-
-            </div>
+            </div>  
         </div>
 
     </div>
