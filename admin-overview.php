@@ -576,6 +576,40 @@ if (isset($_SESSION['message'])) {
             background-color: #d4d4d4ff;
             cursor: pointer;
         }
+
+        .view-profile {
+            display: none;
+            position: fixed;
+            background: white;
+            right: 0;
+            padding: 20px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+            border-radius: 8px;
+            min-width: 300px;
+            text-align: center;
+        }
+
+        .view-profile.active {
+            display: block;
+        }
+
+        .view-profile-content input {
+            height: 40px;
+            width: 100%;
+            font-size: 15px;
+            outline: none;
+        }
+
+        #view-profile-close {
+            display: flex;
+            align-items: center;
+            width: 40%;
+        }
+
+        #view-profile-close:hover {
+            background-color: #d4d4d4ff;
+            cursor: pointer;
+        }
         .overview-buttons-container{
             width: 100%;   
             display:flex;
@@ -676,7 +710,7 @@ if (isset($_SESSION['message'])) {
         <img src="images/logo-blue.png" alt="logo blue" style="width: min(30px, 5vw);" >
     </a>
                 
-        <span><h3 style="color: white; height: 100%; display: flex; align-items: center; margin-right: 30px;">
+        <span onclick = viewProfile() style="cursor: pointer;"><h3 style="color: white; height: 100%; display: flex; align-items: center; margin-right: 30px;">
         <?php
         $admin_id = $_SESSION['admin_id'];
         $sql = "SELECT username FROM admin_accounts WHERE admin_id = '$admin_id'";
@@ -814,6 +848,18 @@ if (isset($_SESSION['message'])) {
             </div>
             <br>
             <div class="edit-profile-content">edit profile</div>
+        </div>
+
+        <div class="view-profile">
+            <form action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>" method="post" style="font-family: Inter-Regular;">
+                <img src="images/user-blue.png" alt="user" style="width:40px;">
+                <br>
+                <div class="view-profile-content">Admin</div>
+                <br>
+                <div class="view-profile-content">edit profile</div>
+                <br>
+                <div class="add-unit-content">logout</div>
+            </form>
         </div>
 
         <div class="main-content" style="padding:20px;">
@@ -1039,6 +1085,9 @@ if (isset($_SESSION['message'])) {
         }
         function editProfile() {
             document.querySelector('.edit-profile').classList.toggle('active');
+        }
+        function viewProfile() {
+            document.querySelector('.view-profile').classList.toggle('active');
         }
         
     </script>
