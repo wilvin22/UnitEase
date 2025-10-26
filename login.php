@@ -31,7 +31,7 @@ if (isset($_POST['login-button'])) {
             } 
             else if ($user_type == 'Tenant'){
                 $_SESSION['tenant_id'] = $row['tenant_id'];
-                header("Location: tenant.php");
+                header("Location: tenant-overview.php");
             }
             exit();
         } else {

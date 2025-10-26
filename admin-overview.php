@@ -1,10 +1,3 @@
-<!-- 
- MGA KULANG: 
-- search bar (optional)
-
--->
-
-
 <?php
 session_start();
 include 'database.php';
@@ -18,6 +11,11 @@ if (isset($_POST['create-unit-button'])) {
     $unit_capacity = $_POST['unit-capacity'];
     $unit_floor = $_POST['unit-floor'];
 
+    if(!is_numeric($unit_capacity) || $unit_capacity <= 0){
+        $message = "❌ Invalid unit capacity.";
+        $message_type = "error";
+    }
+    else{
     //this query selects the entered unit name within the same admin account
     $admin_id = $_SESSION['admin_id'];
     $check_sql = "SELECT * FROM units WHERE unit_name = '$unit_name' AND admin_id = '$admin_id'";
@@ -41,6 +39,7 @@ if (isset($_POST['create-unit-button'])) {
             $message_type = "error";
         }
     }
+}
 }
 
 //assigning a tenant
@@ -220,12 +219,53 @@ if (isset($_POST['confirm-delete-button']) && !empty($_POST['select_unit'])) {
     }
 }
 
+if (isset($_POST['edit-account-button']) && !empty($_POST['select_unit'])) {
+    $admin_id = $_SESSION['admin_id'];
+
+    $edit_username = trim($_POST['edit-username']);
+    $edit_password = trim($_POST['edit-password']);
+    $edit_password_confirm = trim($_POST['edit-password-confirm']);
+    $edit_fullname = trim($_POST['edit-fullname']);
+    $edit_email = trim($_POST['edit-email']);
+    $edit_phone = trim($_POST['edit-phone']);
+
+    $updates = [];
+    if (!empty($edit_username)) $updates[] = "username = '$edit_username'";
+    if (!empty($edit_password)) $updates[] = "password = '$edit_password'";
+    if (!empty($edit_fullname)) $updates[] = "full_name = '$edit_fullname'";
+    if (!empty($edit_email)) $updates[] = "email = '$edit_email'";
+    if (!empty($edit_phone)) $updates[] = "phone_number = '$edit_phone'";
+
+    if($edit_password != $edit_password_confirm){
+        $message = "❌ Passwords don't match.";
+        $message_type = "error";
+    }
+
+    else{
+        $update_sql = "UPDATE admin_accounts SET " . implode(", ", $updates) . " WHERE admin_id = '$admin_id'";
+        try{
+            mysqli_query($conn, $update_sql); 
+            $message = "✅ Account updated successfully!";
+            $message_type = "success";
+        } catch(mysqli_sql_exception) {
+            $message = "❌ Failed to update account.";
+            $message_type = "error";
+        }
+    }
+    if(empty($updates)){
+        $message = "⚠ No changes were made.";
+        $message_type = "error";
+    }
+}
+
 if(isset($_POST['logout-button'])){
     session_unset();
     session_destroy();
     header("Location: login.php");
     exit();
 }
+
+
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -250,11 +290,6 @@ if(isset($_POST['logout-button'])){
             text-decoration: none;
             color: white;
         }
-
-        .menu-icon:hover {
-            cursor: pointer;
-        }
-
         #down-arrow{
             display:none;
         }
@@ -498,8 +533,6 @@ if(isset($_POST['logout-button'])){
         tr {
             height: 30px;
         }
-
-        .menu-icon,
         .close-icon {
             width: 30px;
             height: 30px;
@@ -594,7 +627,7 @@ if(isset($_POST['logout-button'])){
             padding: 20px;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
             border-radius: 8px;
-            min-width: 600px;
+            min-width: 300px;
             text-align: center;
         }
 
@@ -650,6 +683,12 @@ if(isset($_POST['logout-button'])){
             background-color: #e9e9e9ff;
             cursor: pointer;
         }
+        .view-profile-content:first-child{
+            cursor: default;
+        }
+        .view-profile-content:first-child:hover{
+            background-color: white;
+        }
         #view-profile-close {
             display: flex;
             align-items: center;
@@ -671,7 +710,7 @@ if(isset($_POST['logout-button'])){
             padding: 20px;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
             border-radius: 8px;
-            min-width: 500px;
+            min-width: 300px;
         }
 
         .account-info.active {
@@ -900,9 +939,9 @@ if(isset($_POST['logout-button'])){
             </div>
             <br>
             <form action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>" method="post">
-                <div class="send-announcement-content"><input type="text" name="message-subject" id="message-subject" placeholder="Subject"></div>
+                <div class="send-announcement-content"><input type="text" name="message-subject" id="message-subject" placeholder="Subject:"></div>
                 <br>
-                <div class="send-announcement-content"><input type="text" name="message-content" id="message-content" placeholder="Message..." required></div>
+                <div class="send-announcement-content"><input type="text" name="message-content" id="message-content" placeholder="Message:" required></div>
                 <br>
                 <div class="send-announcement-content"><input type="submit" value="Send to selected units only" id="send-announcement-button" name="send-announcement-button"></div>
                 <br>
@@ -946,7 +985,40 @@ if(isset($_POST['logout-button'])){
                 Close
             </div>
             <br>
-            <div class="edit-profile-content">Edit Account Info</div>
+            <form action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>" method="post">
+                <label><h2>Edit Account</h2></label>
+                <br>
+                <br>
+                <input type="hidden" name="select_unit[]" id="edit-account-array">
+                <div class="edit-account-content">
+                    <input type="text" name="edit-username" id="edit-username" placeholder="Change Username (Leave empty to ignore)">
+                </div>
+                <br>
+                <div class="edit-account-content">
+                    <input type="password" name="edit-password" id="edit-password" placeholder="Change Password (Leave empty to ignore)">
+                </div>
+                <br>
+                <div class="edit-account-content">
+                    <input type="password" name="edit-password-confirm" id="edit-password-confirm" placeholder="Confirm Password">
+                </div>
+                <br>
+                <div class="edit-account-content">
+                    <input type="text" name="edit-fullname" id="edit-fullname" placeholder="Edit Full Name (Leave empty to ignore)">
+                </div>
+                <br>
+                <div class="edit-account-content">
+                    <input type="email" name="edit-email" id="edit-email" placeholder="Change Email (Leave empty to ignore)">
+                </div>
+                <br>
+                <div class="edit-account-content">
+                    <input type="tel" name="edit-phone" id="edit-phone" placeholder="Change Phone Number (Leave empty to ignore)">
+                </div>
+                <br>
+                <div class="edit-account-content">
+                    <input type="submit" value="Apply Changes" id="edit-account-button" name="edit-account-button">
+                </div>
+                <br>
+            </form>
         </div>
         
         <div class="account-info">
@@ -1163,16 +1235,6 @@ if(isset($_POST['logout-button'])){
     </div>
 
     <script>
-        function Sidebar() {
-            const dashboard = document.querySelector('.dashboard');
-            if (dashboard.style.display === 'block') {
-                dashboard.style.display = 'none';
-            } else {
-                dashboard.style.display = 'block';
-            }
-
-        }
-
         function addUnit() {
             document.querySelector('.add-unit').classList.toggle('active');
         }
@@ -1209,9 +1271,6 @@ if(isset($_POST['logout-button'])){
         }
         function viewRequests() {
             document.querySelector('.view-requests').classList.toggle('active');
-        }
-        function editProfile() {
-            document.querySelector('.edit-profile').classList.toggle('active');
         }
         function viewProfile() {
             document.querySelector('.view-profile').classList.toggle('active');
