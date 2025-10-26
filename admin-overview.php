@@ -206,29 +206,29 @@ if (isset($_POST['edit-unit-button']) && !empty($_POST['select_unit'])) {
     }
 }
 
-if (isset($_POST['delete-button']) && !empty($_POST['select_unit'])) {
-    $ids = implode(',', array_map('intval', $_POST['select_unit']));
+if (isset($_POST['confirm-delete-button']) && !empty($_POST['select_unit'])) {
+    $selected_units = explode(',', $_POST['select_unit']);
+    $ids = implode(',', array_map('intval', $selected_units));
+
     $delete_sql = "DELETE FROM units WHERE unit_id IN ($ids)";
-    if(mysqli_query($conn, $delete_sql)){
-        $message = "✅ Unit(s) deleted successfully";
+    if (mysqli_query($conn, $delete_sql)) {
+        $message = "✅ Selected unit(s) deleted successfully.";
         $message_type = "success";
-    }
-    else{
+    } else {
         $message = "❌ Could not delete unit(s).";
         $message_type = "error";
     }
 }
 
+if(isset($_POST['logout-button'])){
+    session_unset();
+    session_destroy();
+    header("Location: login.php");
+    exit();
+}
 ?>
 <!DOCTYPE html>
 <html lang="en">
-
-<?php
-if (isset($_SESSION['message'])) {
-    echo "<script>alert('" . $_SESSION['message'] . "');</script>";
-    unset($_SESSION['message']);
-}
-?>
 
 <head>
     <style>
@@ -236,8 +236,8 @@ if (isset($_SESSION['message'])) {
             margin: 0;
             font-family: Inter-Regular, Arial, sans-serif;
             padding: 0;
-            background-color: #e4e4e6ff;
             overflow-y: hidden;
+            background-color: #f7f7f8ff;
         }
 
         .main-container {
@@ -255,14 +255,20 @@ if (isset($_SESSION['message'])) {
             cursor: pointer;
         }
 
+        #down-arrow{
+            display:none;
+        }
         @media (max-width:768px) {
-            .dashboard {
-                width: 100%;
+            #admin-account{
+                display: none;
+                
+            }
+            #down-arrow{
+                display:block;
             }
         }
 
         .main-content {
-            background-color: #f7f7f8ff;
             height: 100%;
             width: 100%;
             display: flex;
@@ -452,6 +458,43 @@ if (isset($_SESSION['message'])) {
             cursor: pointer;
         }
 
+        .delete-unit {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            padding: 20px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+            border-radius: 8px;
+            min-width: 300px;
+            text-align: center;
+        }
+
+        .delete-unit.active {
+            display: block;
+        }
+
+        .delete-unit-content input {
+            height: 40px;
+            width: 100%;
+            font-size: 15px;
+            outline: none;
+            cursor: pointer;
+        }
+
+        #delete-unit-close {
+            display: flex;
+            align-items: center;
+            width: 40%;
+        }
+
+        #delete-unit-close:hover {
+            background-color: #d4d4d4ff;
+            cursor: pointer;
+        }
+
         tr {
             height: 30px;
         }
@@ -541,7 +584,7 @@ if (isset($_SESSION['message'])) {
             cursor: pointer;
         }
 
-        .edit-profile {
+        .edit-account {
             display: none;
             position: fixed;
             top: 50%;
@@ -551,28 +594,28 @@ if (isset($_SESSION['message'])) {
             padding: 20px;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
             border-radius: 8px;
-            min-width: 300px;
+            min-width: 600px;
             text-align: center;
         }
 
-        .edit-profile.active {
+        .edit-account.active {
             display: block;
         }
 
-        .edit-profile-content input {
+        .edit-account-content input {
             height: 40px;
             width: 100%;
             font-size: 15px;
             outline: none;
         }
 
-        #edit-profile-close {
+        #edit-account-close {
             display: flex;
             align-items: center;
             width: 40%;
         }
 
-        #edit-profile-close:hover {
+        #edit-account-close:hover {
             background-color: #d4d4d4ff;
             cursor: pointer;
         }
@@ -584,22 +627,29 @@ if (isset($_SESSION['message'])) {
             right: 0;
             padding: 20px;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
-            border-radius: 8px;
             min-width: 300px;
-            text-align: center;
+            font-size: 20px;
         }
 
         .view-profile.active {
-            display: block;
+            display: flex;
         }
 
-        .view-profile-content input {
-            height: 40px;
-            width: 100%;
-            font-size: 15px;
+        .view-profile-content{
+            background-color: white;
+            border: none;
             outline: none;
+            width: 100%;
+            height: 50px;
+            display:flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
         }
-
+        .view-profile-content:hover{
+            background-color: #e9e9e9ff;
+            cursor: pointer;
+        }
         #view-profile-close {
             display: flex;
             align-items: center;
@@ -607,6 +657,34 @@ if (isset($_SESSION['message'])) {
         }
 
         #view-profile-close:hover {
+            background-color: #d4d4d4ff;
+            cursor: pointer;
+        }
+
+        .account-info{
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            padding: 20px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+            border-radius: 8px;
+            min-width: 500px;
+        }
+
+        .account-info.active {
+            display: block;
+        }
+
+        #account-info-close {
+            display: flex;
+            align-items: center;
+            width: 40%;
+        }
+
+        #account-info-close:hover {
             background-color: #d4d4d4ff;
             cursor: pointer;
         }
@@ -691,6 +769,7 @@ if (isset($_SESSION['message'])) {
             width: 100%; 
             display: flex; 
             justify-content: space-between;
+            align-items: center;
         }
         #message-content{
             height: 100px;
@@ -703,23 +782,24 @@ if (isset($_SESSION['message'])) {
 </head>
 
 <body>
+    
     <div id = "top-bar">
         
      <a href="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>" id="unitease">
         <span style="color: #62929E">U</span>nitEase
         <img src="images/logo-blue.png" alt="logo blue" style="width: min(30px, 5vw);" >
     </a>
-                
-        <span onclick = viewProfile() style="cursor: pointer;"><h3 style="color: white; height: 100%; display: flex; align-items: center; margin-right: 30px;">
+        <span id ="admin-account" onclick = viewProfile() style="cursor: pointer;"><h2 style="color: white; height: 100%; display: flex; flex-shrink: 1;align-items: center; margin-right: 30px;">
         <?php
-        $admin_id = $_SESSION['admin_id'];
-        $sql = "SELECT username FROM admin_accounts WHERE admin_id = '$admin_id'";
-        $result = mysqli_query($conn, $sql);
-        $row = mysqli_fetch_assoc($result);
-        
-        echo"ADMIN: " . $row['username'];
+        echo"⌄ Admin Account";
         ?>
-        </h3></span>
+        </h2></span>
+
+        <span id ="down-arrow" onclick = viewProfile() style="cursor: pointer;"><h2 style="color: white; height: 100%; display: flex; flex-shrink: 1;align-items: center; margin-right: 30px;">
+        <?php
+        echo"⌄";
+        ?>
+        </h2></span>
     </div>
     <div class="main-container">
        
@@ -841,24 +921,72 @@ if (isset($_SESSION['message'])) {
             <div>No requests at the moment.</div>
         </div>
 
-        <div class="edit-profile">
-            <div onclick=editProfile() id="edit-profile-close">
+        <div class="view-profile">
+            <form action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>" method="post" style="font-family: Inter-Regular; width:100%;">
+                <div class="view-profile-content">
+                    <?php
+                    $admin_id = $_SESSION['admin_id'];
+                    $sql = "SELECT username FROM admin_accounts WHERE admin_id = '$admin_id'";
+                    $result = mysqli_query($conn, $sql);
+                    $row = mysqli_fetch_assoc($result);
+                    
+                    echo "Username: " . $row['username'];
+                    ?>
+                </div>
+    
+                <input onclick=accountInfo() class="view-profile-content" type="button" value="Account Info">
+                <input onclick=editAccount() class="view-profile-content" type="button" value="Edit Account">
+                <input class="view-profile-content" type="submit" value="Log-out" name="logout-button" id="logout-button">
+            </form>
+        </div>
+
+        <div class="edit-account">
+            <div onclick=editAccount() id="edit-account-close">
                 <img src="images/close-blue.png" alt="close" id="close-icon" style="width:30px; height:30px; margin:10px;">
                 Close
             </div>
             <br>
-            <div class="edit-profile-content">edit profile</div>
+            <div class="edit-profile-content">Edit Account Info</div>
+        </div>
+        
+        <div class="account-info">
+            <div onclick=accountInfo() id="account-info-close">
+                <img src="images/close-blue.png" alt="close" id="close-icon" style="width:30px; height:30px; margin:10px;">
+                Close
+            </div>
+
+            
+            <div class ="account-info-content"><center><h2>Account Information</h2></center><br><br>
+            <div>
+            <?php
+            $admin_id = $_SESSION['admin_id'];
+            $sql = "SELECT * FROM admin_accounts WHERE admin_id = '$admin_id'";
+            $result = mysqli_query($conn, $sql);
+            $row = mysqli_fetch_assoc($result);
+            
+            echo "Username: " . $row['username'] . "<br><br>";
+            echo "Full Name: " . $row['full_name'] . "<br><br>";
+            echo "Email: " . $row['email'] . "<br><br>";
+            echo "Phone number: " . $row['phone_number'];
+            
+            ?>
+            </div>
         </div>
 
-        <div class="view-profile">
-            <form action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>" method="post" style="font-family: Inter-Regular;">
-                <img src="images/user-blue.png" alt="user" style="width:40px;">
+        </div>
+        <div class="delete-unit">
+            <form action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>" method="post">
+                <label>Delete Selected Units?</label>
                 <br>
-                <div class="view-profile-content">Admin</div>
                 <br>
-                <div class="view-profile-content">edit profile</div>
+                <input type="hidden" name="select_unit" id="delete-unit-array">
+                <div class="delete-unit-content">
+                    <input type="submit" name="confirm-delete-button" id="confirm-delete-button" value="Confirm Delete">
+                </div>
                 <br>
-                <div class="add-unit-content">logout</div>
+                <div class="delete-unit-content">
+                    <input onclick=deleteUnit() type="button" name="cancel-delete-button" id="cancel-delete-button" value = "Cancel">
+                </div>
             </form>
         </div>
 
@@ -951,7 +1079,7 @@ if (isset($_SESSION['message'])) {
                         <input class="overview-buttons" onclick=viewRequests() type="button" name="view-requests" value="View Requests" id="view-requests">
                         <input class="overview-buttons" type="submit" name="refresh-button" value="Refresh" id="refresh-button">
                         <input class="overview-buttons" onclick=removeTenant() type="button" name="remove-tenant" value="Remove a Tenant" id="remove-tenant">
-                        <input class="overview-buttons" type="submit" name="delete-button" value="Delete Selected Units" id="delete-button">
+                        <input class="overview-buttons" onclick = deleteUnit() type="button" name="delete-button" value="Delete Selected Units" id="delete-button">
                     </div>
                     <br>
                     <div class="table-container" style="height: 100%; width:100%; overflow-y:auto; justify-content:center; align-items:center;">
@@ -1061,7 +1189,6 @@ if (isset($_SESSION['message'])) {
             var checkboxes = document.getElementsByName("select_unit[]");
             var selected = null;
             var count = 0;
-
             for (var i = 0; i < checkboxes.length; i++) {
                 if (checkboxes[i].checked) {
                     selected = checkboxes[i].value;
@@ -1088,8 +1215,31 @@ if (isset($_SESSION['message'])) {
         }
         function viewProfile() {
             document.querySelector('.view-profile').classList.toggle('active');
+        } 
+        function accountInfo() {
+            document.querySelector('.account-info').classList.toggle('active');
+        } 
+        function editAccount() {
+            document.querySelector('.edit-account').classList.toggle('active');
+        } 
+        function deleteUnit() {
+            const checkboxes = document.getElementsByName("select_unit[]");
+            const selected = [];
+
+            for (let i = 0; i < checkboxes.length; i++) {
+                if (checkboxes[i].checked) {
+                    selected.push(checkboxes[i].value);
+                }
+            }
+
+            if (selected.length == 0) {
+                alert("Please select at least one unit to delete.");
+                return;
+            }
+
+            document.getElementById('delete-unit-array').value = selected.join(',');
+            document.querySelector('.delete-unit').classList.toggle('active');
         }
-        
     </script>
 </body>
 
