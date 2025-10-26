@@ -251,6 +251,8 @@ include 'database.php';
                 Close
             </div>
             <br>
+            <?php
+            ?>
             Announcements go here.
         </div>
 

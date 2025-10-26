@@ -258,6 +258,39 @@ if (isset($_POST['edit-account-button']) && !empty($_POST['select_unit'])) {
     }
 }
 
+if (isset($_POST['send-announcement-button']) && !empty($_POST['select_unit'])) {
+    $admin_id = $_SESSION['admin_id'];
+    $subject = $_POST['message-subject'];
+    $message = $_POST['message-content'];
+
+    $units = $_POST['select_unit'];
+
+    foreach ($units as $unit_id) {
+        $sql = "INSERT INTO announcements (admin_id, subject, message, unit_id)
+                VALUES ('$admin_id', '$subject', '$message', '$unit_id')";
+        mysqli_query($conn, $sql);
+    }
+
+    $message = "✅ Announcement sent to selected units.";
+    $message_type = "success";
+}
+else if(isset($_POST['send-all-announcement-button'])){
+    $admin_id = $_SESSION['admin_id'];
+    $subject = $_POST['message-subject'];
+    $announcement_message = $_POST['message-content'];
+    
+    $units = mysqli_query($conn, "SELECT unit_id FROM units");
+    while($row = mysqli_fetch_assoc($units)){
+        $unit_id = $row['unit_id'];
+        $sql = "INSERT INTO announcements (admin_id, subject, message, unit_id)
+                VALUES ('$admin_id', '$subject', '$announcement_message', '$unit_id')";
+        mysqli_query($conn, $sql);
+    }
+
+    $message = "✅ Announcement has been sent to all units.";
+    $message_type = "success";
+}
+
 if(isset($_POST['logout-button'])){
     session_unset();
     session_destroy();
@@ -939,6 +972,7 @@ if(isset($_POST['logout-button'])){
             </div>
             <br>
             <form action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>" method="post">
+                <input type="hidden" name="select_unit[]" id="send-announcement-array">
                 <div class="send-announcement-content"><input type="text" name="message-subject" id="message-subject" placeholder="Subject:"></div>
                 <br>
                 <div class="send-announcement-content"><input type="text" name="message-content" id="message-content" placeholder="Message:" required></div>
@@ -1267,6 +1301,21 @@ if(isset($_POST['logout-button'])){
             }
         }
         function sendAnnouncement() {
+            const checkboxes = document.getElementsByName("select_unit[]");
+            const selected = [];
+
+            for (let i = 0; i < checkboxes.length; i++) {
+                if (checkboxes[i].checked) {
+                    selected.push(checkboxes[i].value);
+                }
+            }
+
+            if (selected.length == 0) {
+                alert("Please select at least one unit to send the announcement to.");
+                return;
+            }
+
+            document.getElementById('send-announcement-array').value = selected.join(',');
             document.querySelector('.send-announcement').classList.toggle('active');
         }
         function viewRequests() {
