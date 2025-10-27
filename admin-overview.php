@@ -17,7 +17,7 @@ if (isset($_POST['create-unit-button'])) {
     }
     else{
     //this query selects the entered unit name within the same admin account
-    $admin_id = $_SESSION['admin_id'];
+    $admin_id = $_SESSION['admin_id'];  
     $check_sql = "SELECT * FROM units WHERE unit_name = '$unit_name' AND admin_id = '$admin_id'";
     $check_result = mysqli_query($conn, $check_sql);
 
