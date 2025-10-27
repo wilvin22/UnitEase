@@ -286,7 +286,6 @@ else if(isset($_POST['send-all-announcement-button'])){
                 VALUES ('$admin_id', '$subject', '$announcement_message', '$unit_id')";
         mysqli_query($conn, $sql);
     }
-
     $message = "✅ Announcement has been sent to all units.";
     $message_type = "success";
 }
