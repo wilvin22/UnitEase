@@ -1,11 +1,46 @@
 <?php
 session_start();
 include 'database.php';
+
+$message = "";
+$message_type = "";
+
+if (isset($_POST['send-request-button'])) {
+    $tenant_id = $_SESSION['tenant_id'];
+    $subject = $_POST['message-subject'];
+    $message = $_POST['message-content'];
+
+    $sql = "SELECT unit_id FROM tenant_units WHERE tenant_id = '$tenant_id'";
+    $result = mysqli_query($conn, $sql);
+    $row = mysqli_fetch_assoc($result);
+    $unit_id = $row['unit_id'];
+
+
+    $insert_sql = "INSERT INTO requests (`tenant_id`, `subject`, `message`, `unit_id`) 
+                   VALUES ('$tenant_id', '$subject', '$message', '$unit_id');";
+    try{
+        $insert_result = mysqli_query($conn, $insert_sql);
+        $message = "✅ Announcement sent to selected units.";
+        $message_type = "success";
+        
+    } catch (mysqli_sql_exception){
+        $message = "❌ Error sending request.";
+        $message_type = "error";
+    }
+    header("Location: " . $_SERVER['PHP_SELF']);
+    exit();
+}
 ?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <style>
+        :root{
+            --WHITE: #FDFDFF;
+            --DARK: #393D3F;
+            --LIGHT: #c6c5b9;
+            --BLUE: #62929E;
+        }
         body {
             margin: 0;
             font-family: Inter-Regular, Arial, sans-serif;
