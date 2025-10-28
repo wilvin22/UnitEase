@@ -227,9 +227,10 @@ if (isset($_POST['edit-account-button']) && !empty($_POST['select_unit'])) {
     $edit_email = trim($_POST['edit-email']);
     $edit_phone = trim($_POST['edit-phone']);
 
+    $hashed_password = password_hash($edit_password, PASSWORD_DEFAULT);
     $updates = [];
     if (!empty($edit_username)) $updates[] = "username = '$edit_username'";
-    if (!empty($edit_password)) $updates[] = "password = '$edit_password'";
+    if (!empty($edit_password)) $updates[] = "password = '$hashed_password'";
     if (!empty($edit_fullname)) $updates[] = "full_name = '$edit_fullname'";
     if (!empty($edit_email)) $updates[] = "email = '$edit_email'";
     if (!empty($edit_phone)) $updates[] = "phone_number = '$edit_phone'";
@@ -338,7 +339,6 @@ if (isset($_POST['logout-button'])) {
                 display: block;
             }
         }
-
         .main-content {
             display: flex;
             flex-wrap: wrap;
@@ -348,10 +348,9 @@ if (isset($_POST['logout-button'])) {
             background-color: #FDFDFF;
             overflow-x: hidden;
         }
-
-
         .cards {
             flex-grow: 1;
+            flex-shrink: 1;
             background-color: #ffffff;
             color: #393D3F;
             border: 1px solid #e6e9ee;
@@ -361,7 +360,7 @@ if (isset($_POST['logout-button'])) {
             text-align: center;
             transition: all 0.5s ease;
             min-width: 220px;
-            display: inline-block;
+            height: 110px;
         }
         .cards h1 {
             color: black;
@@ -381,8 +380,6 @@ if (isset($_POST['logout-button'])) {
             flex-direction: column;
             gap: 12px;
         }
-
-
         .overview-buttons-container {
             display: flex;
             flex-wrap: nowrap; 
@@ -393,10 +390,8 @@ if (isset($_POST['logout-button'])) {
             overflow-y: hidden;
             padding-bottom: 5px;
         }
-
         .overview-buttons {
             flex-grow: 1;
-            flex-shrink: 1;
             box-sizing: border-box;
             font-family: Inter-Bold;
             cursor: pointer;
@@ -405,9 +400,9 @@ if (isset($_POST['logout-button'])) {
             border: none;
             outline: none;
             border-radius: 8px;
-            padding: 10px 16px;
             font-size: 16px;
             font-weight: 500;
+            height: 40px;
             transition: all 0.3s ease-in-out;
         }
         .overview-buttons:hover {
@@ -415,17 +410,18 @@ if (isset($_POST['logout-button'])) {
             transform: translateY(2px);
         }
         .table-container {
+            display: flex;
+            flex-wrap: nowrap; 
             width: 100%;
-            overflow-x: auto; 
-            border: 1px solid #ccc;
-            border-radius: 10px;
         }
-        .table-container table {
-            width: 100%;
-            max-width: 100%;     
+        .table-container table {  
             border-collapse: collapse;
             font-size: 18px;
             border-radius: 10px;  
+            width: 100%;
+            box-sizing: border-box;
+            flex-grow: 1;
+            flex-shrink: 1;
         }
         .table-container th,
         .table-container td {
@@ -636,8 +632,6 @@ if (isset($_POST['logout-button'])) {
             background-color: #e3f0f3;
             cursor: pointer;
         }
-
-
         .remove-tenant {
             display: none;
             position: fixed;
@@ -726,34 +720,75 @@ if (isset($_POST['logout-button'])) {
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            background: white;
-            padding: 20px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
-            border-radius: 8px;
-            min-width: 300px;
+            background: #ffffff;
+            padding: 28px 32px;
+            border-radius: 12px;
+            min-width: 360px;
+            max-width: 90%;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
             text-align: center;
+            transition: all 0.3s ease-in-out;
         }
 
         .edit-unit.active {
             display: block;
             z-index: 999;
         }
+        
+        .edit-unit-content label{
+            font-weight: 600;
+            font-size: 18px;
+            color: #202124;
+        }
 
         .edit-unit-content input {
-            height: 40px;
             width: 100%;
+            height: 40px;
+            padding: 0 12px;
+            border: 1px solid #d0d7de;
+            border-radius: 8px;
             font-size: 15px;
             outline: none;
+            box-sizing: border-box;
+            transition: border-color 0.3s, box-shadow 0.3s;
+        }
+
+        .edit-unit-content input:focus {
+            border-color: #62929E;
+            background-color: #ffffff;
+            box-shadow: 0 0 4px rgba(98, 146, 158, 0.3);
+        }
+
+        #edit-unit-button {
+            border: none;
+            border-radius: 8px;
+            height: 42px;
+            width: 100%;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease-in-out;
+        }
+
+        #edit-unit-button:hover {
+            background-color: #4f7d89;
+            transform: translateY(-2px);
         }
 
         #edit-unit-close {
             display: flex;
             align-items: center;
-            width: 40%;
+            gap: 8px;
+            color: #62929E;
+            font-weight: 500;
+            width: fit-content;
+            padding: 6px 10px;
+            border-radius: 6px;
+            transition: background-color 0.3s ease;
         }
 
         #edit-unit-close:hover {
-            background-color: #d4d4d4ff;
+            background-color: #e3f0f3;
             cursor: pointer;
         }
 
@@ -763,35 +798,71 @@ if (isset($_POST['logout-button'])) {
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            background: white;
-            padding: 20px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
-            border-radius: 8px;
-            min-width: 300px;
+            background: #ffffff;
+            padding: 28px 32px;
+            border-radius: 12px;
+            min-width: 360px;
+            max-width: 90%;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
             text-align: center;
+            transition: all 0.3s ease-in-out;
         }
 
         .delete-unit.active {
             display: block;
             z-index: 999;
         }
+        .delete-unit-content label{
+            font-weight: 600;
+            font-size: 18px;
+            color: #202124;
+        }
 
-        .delete-unit-content input {
-            height: 40px;
+        #confirm-delete-button{
+            color: #62929E;
+            border: none;
+            border-radius: 8px;
+            height: 42px;
             width: 100%;
             font-size: 15px;
-            outline: none;
+            font-weight: 600;
             cursor: pointer;
+            transition: all 0.3s ease-in-out;
+        }
+        #confirm-delete-button:hover{
+            background-color: #c7c7c7ff;
+            transform: translateY(-2px);
+        }
+        #cancel-delete-button{
+            color: #62929E;
+            border: none;
+            border-radius: 8px;
+            height: 42px;
+            width: 100%;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease-in-out;
+        }
+        #cancel-delete-button:hover{
+            background-color: #c7c7c7ff;
+            transform: translateY(-2px);
         }
 
         #delete-unit-close {
             display: flex;
             align-items: center;
-            width: 40%;
+            gap: 8px;
+            color: #62929E;
+            font-weight: 500;
+            width: fit-content;
+            padding: 6px 10px;
+            border-radius: 6px;
+            transition: background-color 0.3s ease;
         }
 
         #delete-unit-close:hover {
-            background-color: #d4d4d4ff;
+            background-color: #e3f0f3;
             cursor: pointer;
         }
 
@@ -818,34 +889,90 @@ if (isset($_POST['logout-button'])) {
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            background: white;
-            padding: 20px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
-            border-radius: 8px;
-            min-width: 300px;
+            background: #ffffff;
+            padding: 28px 32px;
+            border-radius: 12px;
+            min-width: 360px;
+            max-width: 90%;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
             text-align: center;
+            transition: all 0.3s ease-in-out;
         }
 
         .send-announcement.active {
             display: block;
             z-index: 999;
         }
-
-        .send-announcement-content input {
-            height: 40px;
-            width: 100%;
-            font-size: 15px;
-            outline: none;
+        .send-announcement-content label{
+            font-weight: 600;
+            font-size: 18px;
+            color: #202124;
         }
 
-        #send-announcement-close {
+        .send-announcement-content input {
+            width: 100%;
+            height: 40px;
+            padding: 0 12px;
+            border: 1px solid #d0d7de;
+            border-radius: 8px;
+            font-size: 15px;
+            outline: none;
+            box-sizing: border-box;
+            transition: border-color 0.3s, box-shadow 0.3s;
+        }
+
+        .send-announcement-content input:focus {
+            border-color: #62929E;
+            background-color: #ffffff;
+            box-shadow: 0 0 4px rgba(98, 146, 158, 0.3);
+        }
+
+        #send-announcement-button{
+            color: #62929E;
+            border: none;
+            border-radius: 8px;
+            height: 42px;
+            width: 100%;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease-in-out;
+        }
+        
+        #send-all-announcement-button{
+            color: #62929E;
+            border: none;
+            border-radius: 8px;
+            height: 42px;
+            width: 100%;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease-in-out;
+        }
+        #send-announcement-button:hover{
+            background-color: #c7c7c7ff;
+            transform: translateY(-2px);
+        }
+        #send-all-announcement-button:hover{
+            background-color: #c7c7c7ff;
+            transform: translateY(-2px);
+        }
+
+      #send-announcement-close {
             display: flex;
             align-items: center;
-            width: 40%;
+            gap: 8px;
+            width: fit-content;
+            padding: 6px 10px;
+            border-radius: 6px;
+            font-weight: 500;
+            color: #444;
+            transition: background 0.5s;
         }
 
         #send-announcement-close:hover {
-            background-color: #d4d4d4ff;
+            background-color: #e3f0f3;
             cursor: pointer;
         }
 
@@ -880,11 +1007,17 @@ if (isset($_POST['logout-button'])) {
         #view-requests-close {
             display: flex;
             align-items: center;
-            width: 40%;
+            gap: 8px;
+            width: fit-content;
+            padding: 6px 10px;
+            border-radius: 6px;
+            font-weight: 500;
+            color: #444;
+            transition: background 0.5s;
         }
 
         #view-requests-close:hover {
-            background-color: #d4d4d4ff;
+            background-color: #e3f0f3;
             cursor: pointer;
         }
 
@@ -965,7 +1098,6 @@ if (isset($_POST['logout-button'])) {
             transform: translateY(0);
         }
 
-        /* Optional scroll behavior for smaller screens */
         @media (max-height: 500px) {
             .edit-account {
                 max-height: 90vh;
@@ -1021,33 +1153,64 @@ if (isset($_POST['logout-button'])) {
 
         }
         .account-info {
-            display: none;
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            background: white;
-            padding: 20px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
-            border-radius: 8px;
-            min-width: 300px;
+        display: none;
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background: #ffffff;
+        border-radius: 12px;
+        padding: 24px;
+        width: 400px;
+        max-width: 90%;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+        border: 1px solid #e6e9ee;
+        text-align: left;
         }
 
         .account-info.active {
-            display: block;
-            z-index: 999;
+        display: block;
+        z-index: 1000;
         }
-
         #account-info-close {
-            display: flex;
-            align-items: center;
-            width: 40%;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        color: #62929E;
+        font-weight: bold;
+        cursor: pointer;
+        width: fit-content;
+        padding: 6px 8px;
+        border-radius: 6px;
+        transition: 0.2s;
         }
 
         #account-info-close:hover {
-            background-color: #d4d4d4ff;
-            cursor: pointer;
+        background: rgba(0, 123, 255, 0.1);
         }
+
+        .account-info-content h2 {
+        text-align: center;
+        color: #62929E;
+        margin-bottom: 10px;
+        }
+
+        .account-info-content div {
+        font-size: 18px;
+        color: #333;
+        }
+
+        @media (max-width: 480px) {
+        .account-info {
+            padding: 16px;
+            width: 90%;
+        }
+
+        .account-info-content h2 {
+            font-size: 18px;
+        }
+        }
+
 
         #remove-tenant,
         #delete-button {
@@ -1264,11 +1427,12 @@ if (isset($_POST['logout-button'])) {
             </div>
             <br>
             <form action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>" method="post">
+
+                <input type="hidden" name="select_unit[]" id="edit-unit-array">
+                <div class="edit-unit-content">
                 <label>Edit Unit</label>
                 <br>
                 <br>
-                <input type="hidden" name="select_unit[]" id="edit-unit-array">
-                <div class="edit-unit-content">
                     <input type="text" name="edit-unit-name" id="edit-unit-name" placeholder="Edit Unit Name (Leave empty to ignore)">
                 </div>
                 <br>
@@ -1295,7 +1459,10 @@ if (isset($_POST['logout-button'])) {
             <br>
             <form action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>" method="post">
                 <input type="hidden" name="select_unit[]" id="send-announcement-array">
-                <div class="send-announcement-content"><input type="text" name="message-subject" id="message-subject" placeholder="Subject:"></div>
+                <div class="send-announcement-content">
+                    <label>Send Announcement</label>
+                    <br><br>
+                    <input type="text" name="message-subject" id="message-subject" placeholder="Subject:"></div>
                 <br>
                 <div class="send-announcement-content"><input type="text" name="message-content" id="message-content" placeholder="Message:" required></div>
                 <br>
@@ -1430,9 +1597,8 @@ if (isset($_POST['logout-button'])) {
 
 
             <div class="account-info-content">
-                <center>
                     <h2>Account Information</h2>
-                </center><br><br>
+                <br><br>
                 <div>
                     <?php
                     $admin_id = $_SESSION['admin_id'];
@@ -1452,11 +1618,12 @@ if (isset($_POST['logout-button'])) {
         </div>
         <div class="delete-unit">
             <form action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>" method="post">
+
+                <input type="hidden" name="select_unit" id="delete-unit-array">
+                <div class="delete-unit-content">
                 <label>Delete Selected Units?</label>
                 <br>
                 <br>
-                <input type="hidden" name="select_unit" id="delete-unit-array">
-                <div class="delete-unit-content">
                     <input type="submit" name="confirm-delete-button" id="confirm-delete-button" value="Confirm Delete">
                 </div>
                 <br>
@@ -1541,7 +1708,7 @@ if (isset($_POST['logout-button'])) {
                     <div style="width: 100%; display:flex; justify-content:start;">
 
                         <?php if (!empty($message)) : ?>
-                            <span style="color: <?php echo ($message_type == 'success') ? 'green' : 'red'; ?>; margin-left:auto;"><?php echo $message ?></span>
+                            <span style="color: <?php echo ($message_type == 'success') ? 'green' : 'red'; ?>; margin-left:auto; font-size: 20px;"><?php echo $message ?></span>
 
                         <?php endif; ?>
 
