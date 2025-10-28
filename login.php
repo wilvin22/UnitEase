@@ -65,12 +65,6 @@ if (isset($_POST['login-button'])) {
                     <div style="color: #62929E">U</div>nitEase <img src="images/logo-blue.png" alt="logo blue" style="width: min(40px, 5vw);">
                 </a>
             </li>
-            <li class="nav-items">
-                <a href="contacts.php" id="contacts">Contacts</a>
-            </li>
-            <li class="nav-items">
-                <a href="aboutus.php" id="aboutus">About Us</a>
-            </li>
         </ul>
     </div>
     <div>

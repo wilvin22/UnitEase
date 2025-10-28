@@ -1,259 +1,200 @@
 <?php
-include("database.php");
+session_start();
+include 'database.php';
 
-$message = '';
-$message_type = '';
+$message = "";
+$message_type = "";
+if(isset($_POST['submit'])){
+    $email = $_POST['email'];
+    $username = $_POST['username'];
+    $sql = "SELECT * FROM accounts WHERE username = '$username'";
+    $result = mysqli_query($conn, $sql);
 
-// HANDLE DIRECT PASSWORD CHANGE
-if (isset($_POST['direct-change-password'])) {
-    $search_user = trim($_POST['search_user']);
-    $new_password = $_POST['new_password_direct'];
-    $confirm_password = $_POST['confirm_password_direct'];
-    
-    if ($new_password === $confirm_password) {
-        // SEARCH IN admin_accounts
-        $admin_sql = "SELECT admin_id FROM admin_accounts WHERE username = '$search_user' OR email = '$search_user'";
-        $admin_result = mysqli_query($conn, $admin_sql);
-        
-        // SEARCH IN tenant_accounts
-        $tenant_sql = "SELECT tenant_id FROM tenant_accounts WHERE username = '$search_user' OR email = '$search_user'";
-        $tenant_result = mysqli_query($conn, $tenant_sql);
-        
-        if (mysqli_num_rows($admin_result) > 0) {
-            // UPDATE PASSWORD IN admin_accounts
-            $hashed_password = password_hash($new_password, PASSWORD_DEFAULT);
-            $update_sql = "UPDATE admin_accounts SET password = '$hashed_password' WHERE username = '$search_user' OR email = '$search_user'";
+    if(mysqli_num_rows($result) <= 0){
+        $message = "❌ Account does not exist.";
+        $message_type = "error";
+    } else{
+        $row = mysqli_fetch_assoc($result);
+        $username = $row['username'];
+
+        $a = "SELECT * FROM admin_accounts WHERE username = '$username'";
+        $a_result = mysqli_query($conn, $a);
+
+        if(mysqli_num_rows($a_result) <= 0){
+            //this means the account is a tenant account
+            $temp_pass = substr(str_shuffle("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"), 0, 6);
+            $hashed_pass = password_hash($temp_pass, PASSWORD_DEFAULT);
+
+            // Update password
+            $update = "UPDATE tenant_accounts SET password = '$hashed_pass' WHERE username = '$username'";
+            mysqli_query($conn, $update);
+
+            // Send email
+            $subject = "Your New Temporary Password";
+            $body = "Hello,\n\nYour new temporary password is: $temp_pass\n\nPlease log in and change it immediately.\n\n- Unitease Team";
+            $headers = "From: noreply@unitease.com\r\n";
             
-            if (mysqli_query($conn, $update_sql)) {
-                $message = "✅ Admin password reset successfully! You can now log in.";
-                $message_type = 'success';
+            if (mail($email, $subject, $body, $headers)) {
+                $message = "✅ A new password has been sent to your email.";
             } else {
-                $message = "❌ Failed to reset admin password.";
-                $message_type = 'error';
-            }
-        } elseif (mysqli_num_rows($tenant_result) > 0) {
-            // UPDATE PASSWORD IN tenant_accounts
-            $hashed_password = password_hash($new_password, PASSWORD_DEFAULT);
-            $update_sql = "UPDATE tenant_accounts SET password = '$hashed_password' WHERE username = '$search_user' OR email = '$search_user'";
+                $message = "❌ Failed to send email. Check mail settings.";
+        } 
+    }
+        else{
+            //this means the account is an admin account
+            $temp_pass = substr(str_shuffle("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"), 0, 6);
+            $hashed_pass = password_hash($temp_pass, PASSWORD_DEFAULT);
+
+            // Update password
+            $update = "UPDATE admin_accounts SET password = '$hashed_pass' WHERE username = '$username'";
+            mysqli_query($conn, $update);
+
+            // Send email
+            $subject = "Your New Temporary Password";
+            $body = "Hello,\n\nYour new temporary password is: $temp_pass\n\nPlease log in and change it immediately.\n\n- Unitease Team";
+            $headers = "From: noreply@unitease.com\r\n";
             
-            if (mysqli_query($conn, $update_sql)) {
-                $message = "✅ Tenant password reset successfully! You can now log in.";
-                $message_type = 'success';
+            if (mail($email, $subject, $body, $headers)) {
+                $message = "✅ A new password has been sent to your email.";
+                $message_type = "success";
             } else {
-                $message = "❌ Failed to reset tenant password.";
-                $message_type = 'error';
-            }
-        } else {
-            $message = "❌ Account not found. Please check your username or email.";
-            $message_type = 'error';
+                $message = "❌ Failed to send email. Check mail settings.";
+                $message_type = "error";
+        } 
         }
-    } else {
-        $message = "⚠ New passwords don't match.";
-        $message_type = 'error';
     }
 }
-?>
 
+
+
+
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <style>
+        body{
+            display: flex;
+            justify-content: center;
+            align-items: center;
+
+            background-image: url(images/white-background2.jpg);
+            background-position: center;
+            background-repeat: no-repeat;
+            background-size: cover;
+        }
+        .forgot-password {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: #ffffff;
+            padding: 28px 32px;
+            border-radius: 12px;
+            min-width: 360px;
+            max-width: 90%;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+            text-align: center;
+            transition: all 0.3s ease-in-out;
+        }
+        .forgot-password-content {
+            margin-bottom: 16px;
+        }
+
+        .forgot-password-content label {
+            font-weight: 600;
+            font-size: 18px;
+            color: #202124;
+        }
+        .forgot-password-content input {
+            width: 100%;
+            height: 40px;
+            padding: 0 12px;
+            border: 1px solid #d0d7de;
+            border-radius: 8px;
+            font-size: 15px;
+            outline: none;
+            box-sizing: border-box;
+            transition: border-color 0.3s, box-shadow 0.3s;
+        }
+
+        .forgot-password-content input:focus {
+            border-color: #62929E;
+            background-color: #ffffff;
+            box-shadow: 0 0 4px rgba(98, 146, 158, 0.3);
+        }
+
+        #submit{
+            color: #62929E;
+            border: none;
+            border-radius: 8px;
+            height: 42px;
+            width: 100%;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease-in-out;
+        }
+
+        #submit:hover {
+            background-color: #c7c7c7ff;
+            transform: translateY(-2px);
+        }
+
+        #forgot-password-close {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: #62929E;
+            font-weight: 500;
+            width: fit-content;
+            padding: 6px 10px;
+            border-radius: 6px;
+            transition: background-color 0.3s ease;
+        }
+
+        #forgot-password-close:hover {
+            background-color: #e3f0f3;
+            cursor: pointer;
+        }
+        a{
+            text-decoration: none;
+        }
+
+    </style>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="forgotpassword.css">
+    <title>Document</title>
     <link rel="stylesheet" href="navbar.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <title>Forgot Password - UnitEase</title>
 </head>
 <body>
-    <div class="navbar">
-        <ul>
-            <li class="nav-items">
-                <a href="index.php" id="unitease"><span style="color: #62929E">U</span>nitEase <img src="images/logo-blue.png" alt="logo blue" style="width: min(40px, 5vw);"></a>
-            </li>
-            <li class="nav-items">
-                <a href="contacts.php" id="contacts">Contacts</a>
-            </li>
-            <li class="nav-items">
-                <a href="aboutus.php" id="aboutus">About Us</a>
-            </li>
-        </ul>
-    </div>
-
-    <div class="main-container">
-        <div class="forgot-password-content">
-            <img src="images/logo-blue.png" alt="logo blue" style="width: 60px; margin-bottom: 20px;">
-            <h1>Forgot Your Password?</h1>
-            <p>No worries! Enter your username or email below and we'll help you reset your password.</p>
-            
-            <button onclick="openDirectPasswordModal()" class="reset-btn">
-                <i class="fas fa-key"></i>
-                Reset My Password
-            </button>
-            
-            <div class="back-to-login">
-                <a href="login.php">
-                    <i class="fas fa-arrow-left"></i>
-                    Back to Login
-                </a>
+    <div class = "forgot-password">
+        <a href="login.php">
+        <div id="forgot-password-close">
+                <img src="images/back-arrow-blue.png" alt="close" id="close-icon" style="width:30px; height:30px; margin:10px;">
+                Back to Log-in
             </div>
-        </div>
-    </div>
-        
-    <!-- DIRECT PASSWORD CHANGE MODAL -->
-    <div id="direct-password-modal" class="modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h2>Reset Password</h2>
-                <span class="close" onclick="closeDirectPasswordModal()">&times;</span>
+            </a>
+            <br>
+        <form action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>" method="post">
+            <div class="forgot-password-content">
+                <label for="email">Password Reset</label><br><br>
+                <input type="email" name="email" id="email" placeholder="Email" required>
             </div>
-            <div class="modal-body">
-                <?php if (!empty($message)): ?>
-                    <div class="message <?php echo $message_type; ?>">
-                        <?php echo $message; ?>
-                    </div>
-                <?php endif; ?>
-                
-                <form id="direct-password-form" method="post">
-                    <div class="form-group">
-                        <label for="search_user">Find Your Account</label>
-                        <div class="search-container">
-                            <input type="text" id="search_user" name="search_user" placeholder="Enter username or email" required>
-                            <button type="button" onclick="searchUser()" class="search-btn">
-                                <i class="fas fa-search"></i>
-                            </button>
-                        </div>
-                    </div>
-                    
-                    <div id="user-info" class="user-info" style="display: none;">
-                        <div class="user-details">
-                            <h3>Account Found:</h3>
-                            <p><strong>Name:</strong> <span id="found-name"></span></p>
-                            <p><strong>Username:</strong> <span id="found-username"></span></p>
-                            <p><strong>Email:</strong> <span id="found-email"></span></p>
-                            <p><strong>Account Type:</strong> <span id="found-type"></span></p>
-                        </div>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label for="new_password_direct">New Password</label>
-                        <div class="password-input-container">
-                            <input type="password" id="new_password_direct" name="new_password_direct" placeholder="Enter new password" required>
-                            <i class="fas fa-eye-slash password-toggle" id="toggle-direct-new" onclick="togglePassword('new_password_direct', 'toggle-direct-new')"></i>
-                        </div>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label for="confirm_password_direct">Confirm New Password</label>
-                        <div class="password-input-container">
-                            <input type="password" id="confirm_password_direct" name="confirm_password_direct" placeholder="Confirm new password" required>
-                            <i class="fas fa-eye-slash password-toggle" id="toggle-direct-confirm" onclick="togglePassword('confirm_password_direct', 'toggle-direct-confirm')"></i>
-                        </div>
-                    </div>
-                    
-                    <div class="modal-actions">
-                        <button type="button" onclick="closeDirectPasswordModal()" class="btn-cancel">Cancel</button>
-                        <button type="submit" name="direct-change-password" class="btn-primary">Reset Password</button>
-                    </div>
-                </form>
+            <br>
+            <div class="forgot-password-content">
+                <input type="text" name="username" id="username" placeholder="Username" required>
             </div>
-        </div>
+            <br>
+            <div class="forgot-password-content">
+                <input type="submit" name="submit" id="submit" value="Send">
+            </div>
+            <?php if (!empty($message)): ?>
+                <div class="form-content">
+                    <p style="color: <?php echo($message_type == 'success') ? 'green' : 'red';?>; font-size: 15px; margin-top: 10px;"><?php echo $message; ?></p>
+                </div>
+            <?php endif; ?>
+        </form>
     </div>
-    
-    <script>
-        // Password toggle function
-        function togglePassword(fieldId, iconId) {
-            const field = document.getElementById(fieldId);
-            const icon = document.getElementById(iconId);
-            
-            if (field.type === 'password') {
-                field.type = 'text';
-                icon.className = 'fas fa-eye password-toggle';
-            } else {
-                field.type = 'password';
-                icon.className = 'fas fa-eye-slash password-toggle';
-            }
-        }
-
-        // Modal functions
-        function openDirectPasswordModal() {
-            document.getElementById('direct-password-modal').style.display = 'block';
-            document.getElementById('search_user').focus();
-        }
-
-        function closeDirectPasswordModal() {
-            document.getElementById('direct-password-modal').style.display = 'none';
-            document.getElementById('direct-password-form').reset();
-            document.getElementById('user-info').style.display = 'none';
-        }
-
-        // Search user function
-        function searchUser() {
-            const searchValue = document.getElementById('search_user').value.trim();
-            
-            if (searchValue === '') {
-                alert('Please enter a username or email');
-                return;
-            }
-            
-            // Show loading state
-            document.getElementById('user-info').style.display = 'block';
-            document.getElementById('found-name').textContent = 'Searching...';
-            document.getElementById('found-username').textContent = searchValue;
-            document.getElementById('found-email').textContent = 'Searching...';
-            document.getElementById('found-type').textContent = 'Searching...';
-            
-            const xhr = new XMLHttpRequest();
-            xhr.open('POST', 'search_user.php', true);
-            xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
-            
-            xhr.onreadystatechange = function() {
-                if (xhr.readyState === 4 && xhr.status === 200) {
-                    try {
-                        const response = JSON.parse(xhr.responseText);
-                        
-                        if (response.success) {
-                            // DISPLAY REAL USER DATA
-                            document.getElementById('found-name').textContent = response.data.full_name;
-                            document.getElementById('found-username').textContent = response.data.username;
-                            document.getElementById('found-email').textContent = response.data.email;
-                            document.getElementById('found-type').textContent = response.data.account_type;
-                        } else {
-                            // USER NOT FOUND
-                            document.getElementById('found-name').textContent = 'User Not Found';
-                            document.getElementById('found-username').textContent = searchValue;
-                            document.getElementById('found-email').textContent = 'Not Found';
-                            document.getElementById('found-type').textContent = 'Not Found';
-                            
-                            // SHOW ERROR MESSAGE
-                            alert('User not found. Please check your username or email.');
-                        }
-                    } catch (e) {
-                        console.error('Error parsing response:', e);
-                        document.getElementById('found-name').textContent = 'Error';
-                        document.getElementById('found-username').textContent = searchValue;
-                        document.getElementById('found-email').textContent = 'Error';
-                        document.getElementById('found-type').textContent = 'Error';
-                    }
-                }
-            };
-            
-            xhr.send('search_user=' + encodeURIComponent(searchValue));
-        }
-
-        // CLOSE MODAL WHEN CLICKING OUTSIDE
-        window.onclick = function(event) {
-            const modal = document.getElementById('direct-password-modal');
-            if (event.target === modal) {
-                closeDirectPasswordModal();
-            }
-        }
-
-        // CLOSE MODAL WITH ESCAPE KEY
-        document.addEventListener('keydown', function(event) {
-            if (event.key === 'Escape') {
-                closeDirectPasswordModal();
-            }
-        });
-    </script>
 </body>
 </html>

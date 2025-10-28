@@ -292,6 +292,10 @@ if (isset($_POST['logout-button'])) {
     header("Location: login.php");
     exit();
 }
+if (!isset($_SESSION['logged_in'])) {
+    header("Location: login.php");
+    exit;
+}
 
 
 ?>

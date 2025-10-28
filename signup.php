@@ -19,17 +19,36 @@ if (isset($_POST['signup-button'])) {
     }
         $hashed_password = password_hash($password, PASSWORD_DEFAULT);
         
+        $sql = "SELECT * FROM accounts WHERE username = '$username'";
+        $result = mysqli_query($conn, $sql);
+
+        if(mysqli_num_rows($result) > 0){
+            $message = "⚠ Username already taken!";
+            $message_type = 'error';
+        } else{
+
         if ($user_type == 'Admin') {
             $admin_username_check = "SELECT * FROM admin_accounts WHERE username = '$username'";
             $admin_username_check_result = mysqli_query($conn, $admin_username_check);
 
-            if (mysqli_num_rows($admin_username_check_result) > 0) {
-                $message = "⚠ Username already taken!";
-                $message_type = 'error';
-            }
-            else{
             $sql = "INSERT INTO `admin_accounts` (`admin_id`, `full_name`, `username`, `password`, `email`, `phone_number`, `reg_date`) 
                     VALUES (NULL, '$full_name', '$username', '$hashed_password', '$email', '$phone_number', current_timestamp())";
+            $insert_accounts = "INSERT INTO accounts (`username`)
+                                VALUES ('$username')";
+            if(mysqli_query($conn, $insert_accounts)){
+                $message = "✅ Account created successfully!";
+                $message_type = 'success';
+            } else {
+                $message = "⚠ Could not create account.";
+                $message_type = 'error';
+            }
+            if(mysqli_query($conn, $sql)){
+                $message = "✅ Account created successfully!";
+                $message_type = 'success';
+            }
+            else{
+                $message = "⚠ Could not create account.";
+                $message_type = 'error';
             }
         } 
         
@@ -37,26 +56,30 @@ if (isset($_POST['signup-button'])) {
             $tenant_username_check = "SELECT * FROM tenant_accounts WHERE username = '$username'";
             $tenant_username_check_result = mysqli_query($conn, $tenant_username_check);
 
-            if (mysqli_num_rows($tenant_username_check_result) > 0) {
-                $message = "⚠ Username already taken!";
-                $message_type = 'error';
-            }
-            else{
             $sql = "INSERT INTO `tenant_accounts` (`tenant_id`, `full_name`, `username`, `password`, `email`, `phone_number`, `reg_date`) 
                     VALUES (NULL, '$full_name', '$username', '$hashed_password', '$email', '$phone_number', current_timestamp())";
+
+            $insert_accounts = "INSERT INTO accounts (`username`)
+                                VALUES ('$usernane')";
+            
+            if(mysqli_query($conn, $insert_accounts)){
+                $message = "✅ Account created successfully!";
+                $message_type = 'success';
+            } else {
+                $message = "⚠ Could not create account.";
+                $message_type = 'error';
+            }
+            if(mysqli_query($conn, $sql)){
+                $message = "✅ Account created successfully!";
+                $message_type = 'success';
+            }
+            else{
+                $message = "⚠ Could not create account.";
+                $message_type = 'error';
             }
         }
-
-        if(mysqli_query($conn, $sql)){
-            $message = "✅ Account created successfully!";
-            $message_type = 'success';
-        }
-        else{
-            $message = "⚠ Could not create account.";
-            $message_type = 'error';
-        }
-       
     }
+}
 
 ?>
 <!DOCTYPE html>
@@ -77,12 +100,6 @@ if (isset($_POST['signup-button'])) {
                 <a href="index.php" id="unitease"><span style="color: #62929E">U</span>nitEase 
                     <img src="images/logo-blue.png" alt="logo blue" style="width: min(40px, 5vw);">
                 </a>
-            </li>
-            <li class="nav-items">
-                <a href="contacts.php" id="contacts">Contacts</a>
-            </li>
-            <li class="nav-items">
-                <a href="aboutus.php" id="aboutus">About Us</a>
             </li>
         </ul>
     </div>

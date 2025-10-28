@@ -69,6 +69,10 @@ if (isset($_POST['logout-button'])) {
     header("Location: login.php");
     exit();
 }
+if (!isset($_SESSION['logged_in'])) {
+    header("Location: login.php");
+    exit;
+}
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -535,13 +539,12 @@ if (isset($_POST['logout-button'])) {
         <div class="view-profile">
             <form action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>" method="post" style="font-family: Inter-Regular; width:100%;">
                 <div class="view-profile-content">
-                    <div id="message" style="margin-left: auto;">
+                    <div>
                     <?php
                     $tenant_id = $_SESSION['tenant_id'];
                     $sql = "SELECT username FROM tenant_accounts WHERE tenant_id = '$tenant_id'";
                     $result = mysqli_query($conn, $sql);
                     $row = mysqli_fetch_assoc($result);
-
                     echo "Username: " . $row['username'];
                     ?>
                     </div>
