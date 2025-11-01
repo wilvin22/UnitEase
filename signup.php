@@ -33,23 +33,24 @@ if (isset($_POST['signup-button'])) {
 
             $sql = "INSERT INTO `admin_accounts` (`admin_id`, `full_name`, `username`, `password`, `email`, `phone_number`, `reg_date`) 
                     VALUES (NULL, '$full_name', '$username', '$hashed_password', '$email', '$phone_number', current_timestamp())";
-            $insert_accounts = "INSERT INTO accounts (`username`)
-                                VALUES ('$username')";
+            $insert_accounts = "INSERT INTO accounts (`username`, `email`)
+                                VALUES ('$username', '$email')";
             if(mysqli_query($conn, $insert_accounts)){
                 $message = "✅ Account created successfully!";
                 $message_type = 'success';
+                if(mysqli_query($conn, $sql)){
+                    $message = "✅ Account created successfully!";
+                    $message_type = 'success';
+                }
+                else{
+                    $message = "⚠ Could not create account.";
+                    $message_type = 'error';
+                }
             } else {
                 $message = "⚠ Could not create account.";
                 $message_type = 'error';
             }
-            if(mysqli_query($conn, $sql)){
-                $message = "✅ Account created successfully!";
-                $message_type = 'success';
-            }
-            else{
-                $message = "⚠ Could not create account.";
-                $message_type = 'error';
-            }
+            
         } 
         
         else if ($user_type == 'Tenant') {
@@ -59,24 +60,25 @@ if (isset($_POST['signup-button'])) {
             $sql = "INSERT INTO `tenant_accounts` (`tenant_id`, `full_name`, `username`, `password`, `email`, `phone_number`, `reg_date`) 
                     VALUES (NULL, '$full_name', '$username', '$hashed_password', '$email', '$phone_number', current_timestamp())";
 
-            $insert_accounts = "INSERT INTO accounts (`username`)
-                                VALUES ('$usernane')";
+            $insert_accounts = "INSERT INTO accounts (`username`, `email`)
+                                VALUES ('$username', '$email')";
             
             if(mysqli_query($conn, $insert_accounts)){
                 $message = "✅ Account created successfully!";
                 $message_type = 'success';
+                if(mysqli_query($conn, $sql)){
+                    $message = "✅ Account created successfully!";
+                    $message_type = 'success';
+                }
+                else{
+                    $message = "⚠ Could not create account.";
+                    $message_type = 'error';
+                }
             } else {
                 $message = "⚠ Could not create account.";
                 $message_type = 'error';
             }
-            if(mysqli_query($conn, $sql)){
-                $message = "✅ Account created successfully!";
-                $message_type = 'success';
-            }
-            else{
-                $message = "⚠ Could not create account.";
-                $message_type = 'error';
-            }
+            
         }
     }
 }

@@ -259,7 +259,6 @@ if (isset($_POST['send-announcement-button']) && !empty($_POST['select_unit'])) 
     $admin_id = $_SESSION['admin_id'];
     $subject = $_POST['message-subject'];
     $message = $_POST['message-content'];
-
     $units = $_POST['select_unit'];
 
     foreach ($units as $unit_id) {
@@ -267,7 +266,6 @@ if (isset($_POST['send-announcement-button']) && !empty($_POST['select_unit'])) 
                 VALUES ('$admin_id', '$subject', '$message', '$unit_id')";
         mysqli_query($conn, $sql);
     }
-
     $message = "✅ Announcement sent to selected units.";
     $message_type = "success";
 } else if (isset($_POST['send-all-announcement-button'])) {
@@ -383,6 +381,8 @@ if (!isset($_SESSION['logged_in'])) {
             display: flex;
             flex-direction: column;
             gap: 12px;
+            overflow-y: auto;
+            overflow-x: auto;
         }
         .overview-buttons-container {
             display: flex;

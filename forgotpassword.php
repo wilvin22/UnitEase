@@ -10,10 +10,18 @@ if(isset($_POST['submit'])){
     $sql = "SELECT * FROM accounts WHERE username = '$username'";
     $result = mysqli_query($conn, $sql);
 
+    $stmt = "SELECT * FROM accounts WHERE email = '$email'";
+    $stmt_result = mysqli_query($conn, $stmt);
+
     if(mysqli_num_rows($result) <= 0){
-        $message = "❌ Account does not exist.";
+        $message = "❌ Username not found.";
         $message_type = "error";
-    } else{
+    } 
+    else if (mysqli_num_rows($stmt_result) <= 0){
+        $message = "❌ Email not found.";
+        $message_type = "error";
+    }
+    else{
         $row = mysqli_fetch_assoc($result);
         $username = $row['username'];
 

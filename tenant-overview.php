@@ -469,7 +469,6 @@ if (!isset($_SESSION['logged_in'])) {
                     $stmt_result = mysqli_query($conn, $stmt);
                     $stmt_row = mysqli_fetch_assoc($stmt_result);
 
-                    echo "Username: " . $stmt_row['username'] . "<br><br>";
                     echo "Full Name: " . $stmt_row['full_name'] . "<br><br>";
                     echo "Email: " . $stmt_row['email'] . "<br><br>";
                     echo "Phone number: " . $stmt_row['phone_number'];
@@ -487,13 +486,23 @@ if (!isset($_SESSION['logged_in'])) {
 
 
             if (mysqli_num_rows($result) > 0) {
+                $tenant_id = $_SESSION['tenant_id'];
 
+                //gets the unit id of the tenant
+                $a = "SELECT * FROM tenant_units WHERE tenant_id = '$tenant_id'";
+                $a_result = mysqli_query($conn, $a);
+                $a_row = mysqli_fetch_assoc($a_result);
+                $unit_id = $a_row['unit_id'];
+
+                //gets the admin id 
                 $b = "SELECT * FROM announcements INNER JOIN admin_accounts ON announcements.admin_id = admin_accounts.admin_id;";
                 $b_result = mysqli_query($conn, $b);
                 $b_row = mysqli_fetch_assoc($b_result);
 
+                $stmt = "SELECT * FROM announcements WHERE unit_id = '$unit_id'";
+                $stmt_result = mysqli_query($conn, $stmt);
                 echo "<div class='announcement-container'>";
-                while ($row = mysqli_fetch_assoc($result)) {
+                while ($row = mysqli_fetch_assoc($stmt_result)) {
 
                     echo "<div class='announcement-content'>";
                     echo "From admin: " . $b_row['full_name'] . "<br><br>";
